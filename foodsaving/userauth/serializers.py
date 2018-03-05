@@ -13,7 +13,10 @@ class AuthLoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        credentials = {'email': attrs.get('email'), 'password': attrs.get('password')}
+        credentials = {
+            'email': attrs.get('email'),
+            'password': attrs.get('password'),
+        }
         user = authenticate(**credentials)
         if user:
             login(self.context['request'], user)
@@ -26,16 +29,41 @@ class AuthLoginSerializer(serializers.Serializer):
 
 class AuthUserSerializer(serializers.ModelSerializer):
 
-    photo = VersatileImageFieldSerializer(sizes='user_profile', required=False, allow_null=True, write_only=True)
-    photo_urls = VersatileImageFieldSerializer(sizes='user_profile', read_only=True, source='photo')
+    photo = VersatileImageFieldSerializer(
+        sizes='user_profile',
+        required=False,
+        allow_null=True,
+        write_only=True,
+    )
+    photo_urls = VersatileImageFieldSerializer(
+        sizes='user_profile',
+        read_only=True,
+        source='photo',
+    )
 
     class Meta:
         model = get_user_model()
         fields = [
-            'id', 'display_name', 'email', 'unverified_email', 'password', 'mobile_number', 'address', 'latitude',
-            'longitude', 'description', 'mail_verified', 'current_group', 'language', 'photo', 'photo_urls'
+            'id',
+            'display_name',
+            'email',
+            'unverified_email',
+            'password',
+            'mobile_number',
+            'address',
+            'latitude',
+            'longitude',
+            'description',
+            'mail_verified',
+            'current_group',
+            'language',
+            'photo',
+            'photo_urls',
         ]
-        read_only_fields = ('unverified_email', 'mail_verified')
+        read_only_fields = (
+            'unverified_email',
+            'mail_verified',
+        )
         extra_kwargs = {
             'password': {
                 'write_only': True

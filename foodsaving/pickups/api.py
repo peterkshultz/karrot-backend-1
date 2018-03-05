@@ -7,17 +7,31 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
 from foodsaving.history.models import History, HistoryTypus
-from foodsaving.pickups.filters import (PickupDatesFilter, PickupDateSeriesFilter, FeedbackFilter)
+from foodsaving.pickups.filters import (
+    PickupDatesFilter,
+    PickupDateSeriesFilter,
+    FeedbackFilter,
+)
 from foodsaving.pickups.models import (
-    PickupDate as PickupDateModel, PickupDateSeries as PickupDateSeriesModel, Feedback as FeedbackModel
+    PickupDate as PickupDateModel,
+    PickupDateSeries as PickupDateSeriesModel,
+    Feedback as FeedbackModel,
 )
 from foodsaving.pickups.permissions import (
-    IsUpcoming, HasNotJoinedPickupDate, HasJoinedPickupDate, IsEmptyPickupDate, IsNotFull, IsSameCollector,
-    IsRecentPickupDate
+    IsUpcoming,
+    HasNotJoinedPickupDate,
+    HasJoinedPickupDate,
+    IsEmptyPickupDate,
+    IsNotFull,
+    IsSameCollector,
+    IsRecentPickupDate,
 )
 from foodsaving.pickups.serializers import (
-    PickupDateSerializer, PickupDateSeriesSerializer, PickupDateJoinSerializer, PickupDateLeaveSerializer,
-    FeedbackSerializer
+    PickupDateSerializer,
+    PickupDateSeriesSerializer,
+    PickupDateJoinSerializer,
+    PickupDateLeaveSerializer,
+    FeedbackSerializer,
 )
 from foodsaving.utils.mixins import PartialUpdateModelMixin
 
@@ -28,8 +42,13 @@ class FeedbackPagination(CursorPagination):
     ordering = '-created_at'
 
 
-class FeedbackViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUpdateModelMixin,
-                      mixins.ListModelMixin, GenericViewSet):
+class FeedbackViewSet(
+        mixins.CreateModelMixin,
+        mixins.RetrieveModelMixin,
+        PartialUpdateModelMixin,
+        mixins.ListModelMixin,
+        GenericViewSet,
+):
     """
     Feedback
 
@@ -57,8 +76,14 @@ class FeedbackViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, Partia
         return super().get_permissions()
 
 
-class PickupDateSeriesViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUpdateModelMixin,
-                              mixins.ListModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+class PickupDateSeriesViewSet(
+        mixins.CreateModelMixin,
+        mixins.RetrieveModelMixin,
+        PartialUpdateModelMixin,
+        mixins.ListModelMixin,
+        mixins.DestroyModelMixin,
+        viewsets.GenericViewSet,
+):
 
     serializer_class = PickupDateSeriesSerializer
     queryset = PickupDateSeriesModel.objects
@@ -90,8 +115,14 @@ class PickupDatePagination(CursorPagination):
     ordering = 'date'
 
 
-class PickupDateViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUpdateModelMixin,
-                        mixins.DestroyModelMixin, mixins.ListModelMixin, GenericViewSet):
+class PickupDateViewSet(
+        mixins.CreateModelMixin,
+        mixins.RetrieveModelMixin,
+        PartialUpdateModelMixin,
+        mixins.DestroyModelMixin,
+        mixins.ListModelMixin,
+        GenericViewSet,
+):
     """
     Pickup Dates
 
@@ -139,7 +170,7 @@ class PickupDateViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, Part
     @detail_route(
         methods=['POST'],
         permission_classes=(IsAuthenticated, IsUpcoming, HasNotJoinedPickupDate, IsNotFull),
-        serializer_class=PickupDateJoinSerializer
+        serializer_class=PickupDateJoinSerializer,
     )
     def add(self, request, pk=None):
         return self.partial_update(request)
@@ -147,7 +178,7 @@ class PickupDateViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, Part
     @detail_route(
         methods=['POST'],
         permission_classes=(IsAuthenticated, IsUpcoming, HasJoinedPickupDate),
-        serializer_class=PickupDateLeaveSerializer
+        serializer_class=PickupDateLeaveSerializer,
     )
     def remove(self, request, pk=None):
         return self.partial_update(request)

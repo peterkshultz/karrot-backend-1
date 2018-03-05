@@ -109,9 +109,7 @@ class GroupDetailSerializer(serializers.ModelSerializer):
             History.objects.create(
                 typus=HistoryTypus.GROUP_MODIFY,
                 group=group,
-                users=[
-                    user,
-                ],
+                users=[user],
                 payload=changed_data,
             )
         return group
@@ -123,9 +121,7 @@ class GroupDetailSerializer(serializers.ModelSerializer):
         History.objects.create(
             typus=HistoryTypus.GROUP_CREATE,
             group=group,
-            users=[
-                user,
-            ],
+            users=[user],
             payload=self.initial_data,
         )
         return group
@@ -134,7 +130,13 @@ class GroupDetailSerializer(serializers.ModelSerializer):
 class AgreementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Agreement
-        fields = ['id', 'title', 'content', 'group', 'agreed']
+        fields = [
+            'id',
+            'title',
+            'content',
+            'group',
+            'agreed',
+        ]
         extra_kwargs = {
             'agreed': {
                 'read_only': True
@@ -191,7 +193,16 @@ class GroupPreviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GroupModel
-        fields = ['id', 'name', 'public_description', 'address', 'latitude', 'longitude', 'members', 'protected']
+        fields = [
+            'id',
+            'name',
+            'public_description',
+            'address',
+            'latitude',
+            'longitude',
+            'members',
+            'protected',
+        ]
 
     protected = serializers.SerializerMethodField()
 
@@ -227,7 +238,10 @@ class GroupLeaveSerializer(serializers.ModelSerializer):
 
 
 class TimezonesSerializer(serializers.Serializer):
-    all_timezones = serializers.ListField(child=serializers.CharField(), read_only=True)
+    all_timezones = serializers.ListField(
+        child=serializers.CharField(),
+        read_only=True,
+    )
 
 
 class EmptySerializer(serializers.Serializer):
@@ -239,7 +253,9 @@ class GroupMembershipAddRoleSerializer(serializers.Serializer):
         choices=(
             roles.GROUP_MEMBERSHIP_MANAGER,
             roles.GROUP_AGREEMENT_MANAGER,
-        ), required=True, write_only=True
+        ),
+        required=True,
+        write_only=True,
     )
 
     def update(self, instance, validated_data):

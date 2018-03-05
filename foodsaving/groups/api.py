@@ -54,8 +54,14 @@ class GroupInfoViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
     serializer_class = GroupPreviewSerializer
 
 
-class GroupViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUpdateModelMixin, mixins.ListModelMixin,
-                   RetrieveConversationMixin, GenericViewSet):
+class GroupViewSet(
+        mixins.CreateModelMixin,
+        mixins.RetrieveModelMixin,
+        PartialUpdateModelMixin,
+        mixins.ListModelMixin,
+        RetrieveConversationMixin,
+        GenericViewSet,
+):
     """
     Your groups: list, create, update
     """
@@ -93,18 +99,26 @@ class GroupViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUp
         return self.queryset.filter(members=self.request.user)
 
     @detail_route(
-        methods=['POST'], permission_classes=(IsAuthenticated, IsNotMember), serializer_class=GroupJoinSerializer
+        methods=['POST'],
+        permission_classes=(IsAuthenticated, IsNotMember),
+        serializer_class=GroupJoinSerializer,
     )
     def join(self, request, pk=None):
         """Join a group"""
         return self.partial_update(request)
 
-    @detail_route(methods=['POST'], serializer_class=GroupLeaveSerializer)
+    @detail_route(
+        methods=['POST'],
+        serializer_class=GroupLeaveSerializer,
+    )
     def leave(self, request, pk=None):
         """Leave one of your groups"""
         return self.partial_update(request)
 
-    @list_route(methods=['GET'], serializer_class=TimezonesSerializer)
+    @list_route(
+        methods=['GET'],
+        serializer_class=TimezonesSerializer,
+    )
     def timezones(self, request, pk=None):
         """List all accepted timezones"""
         return Response(self.get_serializer({'all_timezones': pytz.all_timezones}).data)
@@ -114,7 +128,9 @@ class GroupViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUp
         """Get wall conversation ID of this group"""
         return self.retrieve_conversation(request, pk)
 
-    @detail_route(methods=['POST'])
+    @detail_route(
+        methods=['POST'],
+    )
     def mark_user_active(self, request, pk=None):
         """Mark that the logged-in user is active in the group"""
         gm = get_object_or_404(GroupMembership.objects, group=pk, user=request.user)
@@ -150,7 +166,7 @@ class GroupViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUp
         permission_classes=(IsAuthenticated, ),
         url_name='notification_types',
         url_path='notification_types/(?P<notification_type>[^/.]+)',
-        serializer_class=EmptySerializer  # for Swagger
+        serializer_class=EmptySerializer,  # for Swagger
     )
     def modify_notification_types(self, request, pk, notification_type):
         """add (POST) or remove (DELETE) a notification type"""
@@ -168,8 +184,13 @@ class GroupViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUp
         return Response(GroupMembershipInfoSerializer(membership).data)
 
 
-class AgreementViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUpdateModelMixin,
-                       mixins.ListModelMixin, GenericViewSet):
+class AgreementViewSet(
+        mixins.CreateModelMixin,
+        mixins.RetrieveModelMixin,
+        PartialUpdateModelMixin,
+        mixins.ListModelMixin,
+        GenericViewSet,
+):
     queryset = Agreement.objects
     serializer_class = AgreementSerializer
     permission_classes = (IsAuthenticated, )

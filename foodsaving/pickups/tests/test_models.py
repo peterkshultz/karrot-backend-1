@@ -21,26 +21,53 @@ class TestFeedbackModel(TestCase):
 
     def test_weight_is_negative_fails(self):
         with self.assertRaises(ValidationError):
-            model = Feedback.objects.create(weight=-1, about=self.pickup, given_by=self.user, comment="soup")
+            model = Feedback.objects.create(
+                weight=-1,
+                about=self.pickup,
+                given_by=self.user,
+                comment="soup",
+            )
             model.clean_fields()
 
     def test_weight_is_too_high_number_fails(self):
         with self.assertRaises(ValidationError):
-            model = Feedback.objects.create(weight=10001, about=self.pickup, given_by=self.user, comment="soup")
+            model = Feedback.objects.create(
+                weight=10001,
+                about=self.pickup,
+                given_by=self.user,
+                comment="soup",
+            )
             model.clean_fields()
 
     def test_create_fails_if_comment_too_long(self):
         with self.assertRaises(DataError):
-            Feedback.objects.create(comment='a' * 100001, about=self.pickup, given_by=self.user, weight=1)
+            Feedback.objects.create(
+                comment='a' * 100001,
+                about=self.pickup,
+                given_by=self.user,
+                weight=1,
+            )
 
     def test_create_two_feedback_for_same_pickup_as_same_user_fails(self):
-        Feedback.objects.create(given_by=self.user, about=self.pickup)
+        Feedback.objects.create(
+            given_by=self.user,
+            about=self.pickup,
+        )
         with self.assertRaises(IntegrityError):
-            Feedback.objects.create(given_by=self.user, about=self.pickup)
+            Feedback.objects.create(
+                given_by=self.user,
+                about=self.pickup,
+            )
 
     def test_create_two_feedback_for_different_pickups_as_same_user_works(self):
-        Feedback.objects.create(given_by=self.user, about=self.pickup)
-        Feedback.objects.create(given_by=self.user, about=PickupDateFactory())
+        Feedback.objects.create(
+            given_by=self.user,
+            about=self.pickup,
+        )
+        Feedback.objects.create(
+            given_by=self.user,
+            about=PickupDateFactory(),
+        )
 
 
 class TestPickupDateSeriesModel(TestCase):
@@ -52,7 +79,11 @@ class TestPickupDateSeriesModel(TestCase):
     def test_daylight_saving_time_to_summer(self):
         start_date = self.store.group.timezone.localize(datetime.now().replace(2017, 3, 18, 15, 0, 0, 0))
 
-        series = PickupDateSeries(store=self.store, rule=str(self.recurrence), start_date=start_date)
+        series = PickupDateSeries(
+            store=self.store,
+            rule=str(self.recurrence),
+            start_date=start_date,
+        )
         series.save()
         series.update_pickup_dates(start=lambda: timezone.now().replace(2017, 3, 18, 4, 40, 13))
         expected_dates = []
@@ -64,7 +95,11 @@ class TestPickupDateSeriesModel(TestCase):
     def test_daylight_saving_time_to_winter(self):
         start_date = self.store.group.timezone.localize(datetime.now().replace(2016, 10, 22, 15, 0, 0, 0))
 
-        series = PickupDateSeries(store=self.store, rule=str(self.recurrence), start_date=start_date)
+        series = PickupDateSeries(
+            store=self.store,
+            rule=str(self.recurrence),
+            start_date=start_date,
+        )
         series.save()
         series.update_pickup_dates(start=lambda: timezone.now().replace(2016, 10, 22, 4, 40, 13))
         expected_dates = []
@@ -76,7 +111,11 @@ class TestPickupDateSeriesModel(TestCase):
     def test_delete(self):
         now = timezone.now()
         two_weeks_ago = now - relativedelta(weeks=2)
-        series = PickupDateSeries(store=self.store, rule=str(self.recurrence), start_date=two_weeks_ago)
+        series = PickupDateSeries(
+            store=self.store,
+            rule=str(self.recurrence),
+            start_date=two_weeks_ago,
+        )
         series.save()
         series.update_pickup_dates(start=lambda: two_weeks_ago)
         pickup_dates = series.pickup_dates.all()

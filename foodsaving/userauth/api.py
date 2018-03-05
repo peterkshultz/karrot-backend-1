@@ -71,9 +71,7 @@ class AuthUserView(generics.GenericAPIView):
         from foodsaving.groups.models import GroupMembership
 
         # Emits pre_delete and post_delete signals, they are used to remove the user from pick-ups
-        for _ in Group.objects.filter(members__in=[
-                user,
-        ]):
+        for _ in Group.objects.filter(members__in=[user]):
             GroupMembership.objects.filter(group=_, user=user).delete()
 
         user.description = ''

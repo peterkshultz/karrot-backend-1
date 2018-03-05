@@ -6,8 +6,13 @@ from foodsaving.subscriptions.models import PushSubscription
 from foodsaving.subscriptions.serializers import PushSubscriptionSerializer, CreatePushSubscriptionSerializer
 
 
-class PushSubscriptionViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
-                              mixins.DestroyModelMixin, GenericViewSet):
+class PushSubscriptionViewSet(
+        mixins.CreateModelMixin,
+        mixins.ListModelMixin,
+        mixins.RetrieveModelMixin,
+        mixins.DestroyModelMixin,
+        GenericViewSet,
+):
     """
     PushSubscriptions
     """

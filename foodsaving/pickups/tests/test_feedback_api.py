@@ -22,13 +22,23 @@ class FeedbackTest(APITestCase, ExtractPaginationMixin):
         self.collector3 = UserFactory()
         self.evil_collector = UserFactory()
         self.group = GroupFactory(
-            members=[self.member, self.collector, self.evil_collector, self.collector2, self.collector3]
+            members=[
+                self.member,
+                self.collector,
+                self.evil_collector,
+                self.collector2,
+                self.collector3,
+            ]
         )
         self.store = StoreFactory(group=self.group)
         self.pickup = PickupDateFactory(
             store=self.store,
             date=timezone.now() + relativedelta(days=1),
-            collectors=[self.collector, self.collector2, self.collector3],
+            collectors=[
+                self.collector,
+                self.collector2,
+                self.collector3,
+            ],
         )
 
         # not a member of the group
@@ -38,7 +48,12 @@ class FeedbackTest(APITestCase, ExtractPaginationMixin):
         self.past_pickup = PickupDateFactory(
             store=self.store,
             date=timezone.now() - relativedelta(days=1),
-            collectors=[self.collector, self.evil_collector, self.collector2, self.collector3],
+            collectors=[
+                self.collector,
+                self.evil_collector,
+                self.collector2,
+                self.collector3,
+            ],
         )
 
         # old pickup date with feedback
@@ -49,10 +64,17 @@ class FeedbackTest(APITestCase, ExtractPaginationMixin):
                 self.collector3,
             ]
         )
-        self.old_feedback = FeedbackFactory(about=self.old_pickup, given_by=self.collector3)
+        self.old_feedback = FeedbackFactory(
+            about=self.old_pickup,
+            given_by=self.collector3,
+        )
 
         # create feedback for POST method
-        self.feedback_post = {'about': self.past_pickup.id, 'weight': 2, 'comment': 'asfjk'}
+        self.feedback_post = {
+            'about': self.past_pickup.id,
+            'weight': 2,
+            'comment': 'asfjk',
+        }
 
         # create feedback for POST method without weight and comment
         self.feedback_without_weight_comment = {
@@ -60,15 +82,33 @@ class FeedbackTest(APITestCase, ExtractPaginationMixin):
         }
 
         # create feedback to future pickup
-        self.future_feedback_post = {'about': self.pickup.id, 'weight': 2, 'comment': 'asfjk'}
+        self.future_feedback_post = {
+            'about': self.pickup.id,
+            'weight': 2,
+            'comment': 'asfjk',
+        }
 
         # create feedback for an old pickup
-        self.feedback_for_old_pickup = {'about': self.old_pickup.id, 'weight': 5, 'comment': 'this is long ago'}
+        self.feedback_for_old_pickup = {
+            'about': self.old_pickup.id,
+            'weight': 5,
+            'comment': 'this is long ago',
+        }
 
         # create feedback for GET method
-        self.feedback_get = {'given_by': self.collector, 'about': self.past_pickup, 'weight': 2, 'comment': 'asfjk2'}
+        self.feedback_get = {
+            'given_by': self.collector,
+            'about': self.past_pickup,
+            'weight': 2,
+            'comment': 'asfjk2',
+        }
 
-        self.feedback_get_2 = {'given_by': self.collector2, 'about': self.past_pickup, 'weight': 2, 'comment': 'asfjk'}
+        self.feedback_get_2 = {
+            'given_by': self.collector2,
+            'about': self.past_pickup,
+            'weight': 2,
+            'comment': 'asfjk',
+        }
 
         # create 2 instances of feedback for GET method
         self.feedback = Feedback.objects.create(**self.feedback_get)

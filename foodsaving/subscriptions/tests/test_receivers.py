@@ -44,7 +44,11 @@ class ConversationReceiverTests(ChannelTestCase):
         author_client.send_and_consume('websocket.connect', path='/')
 
         # add a message to the conversation
-        message = ConversationMessage.objects.create(conversation=conversation, content='yay', author=author)
+        message = ConversationMessage.objects.create(
+            conversation=conversation,
+            content='yay',
+            author=author,
+        )
 
         # hopefully they receive it!
         response = client.receive(json=True)
@@ -197,7 +201,11 @@ class InvitationReceiverTests(ChannelTestCase):
         self.client.force_login(self.member)
         self.client.send_and_consume('websocket.connect', path='/')
 
-        invitation = Invitation.objects.create(email='bla@bla.com', group=self.group, invited_by=self.member)
+        invitation = Invitation.objects.create(
+            email='bla@bla.com',
+            group=self.group,
+            invited_by=self.member,
+        )
 
         response = self.client.receive(json=True)
         self.assertEqual(response['topic'], 'invitations:invitation')
@@ -301,7 +309,10 @@ class PickupDateSeriesReceiverTests(ChannelTestCase):
 
         # Create far in the future to generate no pickup dates
         # They would lead to interfering websocket messages
-        self.series = PickupDateSeriesFactory(store=self.store, start_date=timezone.now() + relativedelta(months=2))
+        self.series = PickupDateSeriesFactory(
+            store=self.store,
+            start_date=timezone.now() + relativedelta(months=2),
+        )
 
     def test_receive_series_changes(self):
         self.client.force_login(self.member)
@@ -343,7 +354,10 @@ class FeedbackReceiverTests(ChannelTestCase):
         self.client.force_login(self.member)
         self.client.send_and_consume('websocket.connect', path='/')
 
-        feedback = FeedbackFactory(given_by=self.member, about=self.pickup)
+        feedback = FeedbackFactory(
+            given_by=self.member,
+            about=self.pickup,
+        )
 
         response = self.client.receive(json=True)
         self.assertEqual(response['topic'], 'feedback:feedback')
@@ -358,7 +372,10 @@ class FinishedPickupReceiverTest(ChannelTestCase):
         self.member = UserFactory()
         self.group = GroupFactory(members=[self.member])
         self.store = StoreFactory(group=self.group)
-        self.pickup = PickupDateFactory(store=self.store, collectors=[self.member])
+        self.pickup = PickupDateFactory(
+            store=self.store,
+            collectors=[self.member],
+        )
 
     def test_receive_feedback_possible_and_history(self):
         self.pickup.date = timezone.now() - relativedelta(days=1)
@@ -452,7 +469,11 @@ class ReceiverPushTests(ChannelTestCase):
         self.conversation.join(self.author)
 
         # add a push subscriber
-        PushSubscription.objects.create(user=self.user, token=self.token, platform=PushSubscriptionPlatform.ANDROID)
+        PushSubscription.objects.create(
+            user=self.user,
+            token=self.token,
+            platform=PushSubscriptionPlatform.ANDROID,
+        )
 
     def test_sends_to_push_subscribers(self, m):
         def check_json_data(request):
@@ -462,16 +483,31 @@ class ReceiverPushTests(ChannelTestCase):
             self.assertEqual(data['to'], self.token)
             return True
 
-        m.post(FCMApi.FCM_END_POINT, json={}, additional_matcher=check_json_data)
+        m.post(
+            FCMApi.FCM_END_POINT,
+            json={},
+            additional_matcher=check_json_data,
+        )
 
         # add a message to the conversation
-        ConversationMessage.objects.create(conversation=self.conversation, content=self.content, author=self.author)
+        ConversationMessage.objects.create(
+            conversation=self.conversation,
+            content=self.content,
+            author=self.author,
+        )
 
     def test_does_not_send_push_notification_if_active_channel_subscription(self, m):
         # add a channel subscription to prevent the push being sent
-        ChannelSubscription.objects.create(user=self.user, reply_channel='foo')
+        ChannelSubscription.objects.create(
+            user=self.user,
+            reply_channel='foo',
+        )
         # add a message to the conversation
-        ConversationMessage.objects.create(conversation=self.conversation, content=self.content, author=self.author)
+        ConversationMessage.objects.create(
+            conversation=self.conversation,
+            content=self.content,
+            author=self.author,
+        )
         # if it sent a push message, the requests mock would complain there is no matching request...
 
     def test_send_push_notification_if_channel_subscription_is_away(self, m):
@@ -482,13 +518,25 @@ class ReceiverPushTests(ChannelTestCase):
             self.assertEqual(data['to'], self.token)
             return True
 
-        m.post(FCMApi.FCM_END_POINT, json={}, additional_matcher=check_json_data)
+        m.post(
+            FCMApi.FCM_END_POINT,
+            json={},
+            additional_matcher=check_json_data,
+        )
 
         # add a channel subscription to prevent the push being sent
-        ChannelSubscription.objects.create(user=self.user, reply_channel='foo', away_at=timezone.now())
+        ChannelSubscription.objects.create(
+            user=self.user,
+            reply_channel='foo',
+            away_at=timezone.now(),
+        )
 
         # add a message to the conversation
-        ConversationMessage.objects.create(conversation=self.conversation, content=self.content, author=self.author)
+        ConversationMessage.objects.create(
+            conversation=self.conversation,
+            content=self.content,
+            author=self.author,
+        )
 
 
 @requests_mock.Mocker()
@@ -506,7 +554,11 @@ class GroupConversationReceiverPushTests(ChannelTestCase):
         self.conversation = self.group.conversation
 
         # add a push subscriber
-        PushSubscription.objects.create(user=self.user, token=self.token, platform=PushSubscriptionPlatform.ANDROID)
+        PushSubscription.objects.create(
+            user=self.user,
+            token=self.token,
+            platform=PushSubscriptionPlatform.ANDROID,
+        )
 
     def test_sends_to_push_subscribers(self, m):
         def check_json_data(request):
@@ -516,7 +568,15 @@ class GroupConversationReceiverPushTests(ChannelTestCase):
             self.assertEqual(data['to'], self.token)
             return True
 
-        m.post(FCMApi.FCM_END_POINT, json={}, additional_matcher=check_json_data)
+        m.post(
+            FCMApi.FCM_END_POINT,
+            json={},
+            additional_matcher=check_json_data,
+        )
 
         # add a message to the conversation
-        ConversationMessage.objects.create(conversation=self.conversation, content=self.content, author=self.author)
+        ConversationMessage.objects.create(
+            conversation=self.conversation,
+            content=self.content,
+            author=self.author,
+        )

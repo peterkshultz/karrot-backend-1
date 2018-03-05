@@ -42,14 +42,14 @@ class TestPickupDateSeriesCreationAPI(APITestCase, ExtractPaginationMixin):
         url = '/api/pickup-date-series/'
         recurrence = rrule.rrule(
             freq=rrule.WEEKLY,
-            byweekday=[0, 1]  # Monday and Tuesday
+            byweekday=[0, 1],  # Monday and Tuesday
         )
         start_date = self.group.timezone.localize(datetime.now().replace(hour=20, minute=0))
         pickup_series_data = {
             'max_collectors': 5,
             'store': self.store.id,
             'rule': str(recurrence),
-            'start_date': start_date
+            'start_date': start_date,
         }
         start_date = start_date.replace(second=0, microsecond=0)
         self.client.force_login(user=self.member)
@@ -63,7 +63,7 @@ class TestPickupDateSeriesCreationAPI(APITestCase, ExtractPaginationMixin):
             'max_collectors': 5,
             'store': self.store.id,
             'rule': str(recurrence),
-            'description': ''
+            'description': '',
         }
         self.assertEqual(response.data, expected_series_data)
 
@@ -87,10 +87,10 @@ class TestPickupDateSeriesCreationAPI(APITestCase, ExtractPaginationMixin):
         # do recurrence calculation in local time to avoid daylight saving time problems
         tz = self.group.timezone
         dates_list = recurrence.replace(
-            dtstart=timezone.now().astimezone(tz).replace(hour=20, minute=0, second=0, microsecond=0, tzinfo=None)
+            dtstart=timezone.now().astimezone(tz).replace(hour=20, minute=0, second=0, microsecond=0, tzinfo=None),
         ).between(
             timezone.now().astimezone(tz).replace(tzinfo=None),
-            timezone.now().astimezone(tz).replace(tzinfo=None) + relativedelta(weeks=4)
+            timezone.now().astimezone(tz).replace(tzinfo=None) + relativedelta(weeks=4),
         )
         dates_list = [tz.localize(d) for d in dates_list]
 
@@ -111,7 +111,7 @@ class TestPickupDateSeriesCreationAPI(APITestCase, ExtractPaginationMixin):
                 'series': series_id,
                 'collector_ids': [],
                 'store': self.store.id,
-                'description': ''
+                'description': '',
             })
         self.assertEqual(response.data, created_pickup_dates)
 
@@ -128,19 +128,27 @@ class TestPickupDateSeriesChangeAPI(APITestCase, ExtractPaginationMixin):
             self.member,
         ])
         self.store = StoreFactory(group=self.group)
-        self.series = PickupDateSeriesFactory(max_collectors=3, store=self.store)
+        self.series = PickupDateSeriesFactory(
+            max_collectors=3,
+            store=self.store,
+        )
         self.series.update_pickup_dates(start=lambda: self.now)
 
     def test_change_max_collectors_for_series(self):
         "should change all future instances (except for individually changed ones), but not past ones"
         url = '/api/pickup-date-series/{}/'.format(self.series.id)
         self.client.force_login(user=self.member)
-        response = self.client.patch(url, {'max_collectors': 99})
+        response = self.client.patch(url, {
+            'max_collectors': 99,
+        })
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(response.data['max_collectors'], 99)
 
         url = '/api/pickup-dates/'
-        response = self.get_results(url, {'series': self.series.id, 'date_0': self.now})
+        response = self.get_results(url, {
+            'series': self.series.id,
+            'date_0': self.now,
+        })
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         for _ in response.data:
             self.assertEqual(_['max_collectors'], 99)
@@ -149,14 +157,19 @@ class TestPickupDateSeriesChangeAPI(APITestCase, ExtractPaginationMixin):
         self.client.force_login(user=self.member)
         # get original times
         url = '/api/pickup-dates/'
-        response = self.get_results(url, {'series': self.series.id, 'date_0': self.now})
+        response = self.get_results(url, {
+            'series': self.series.id,
+            'date_0': self.now,
+        })
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         original_dates = [parse(_['date']) for _ in response.data]
 
         # change times
         url = '/api/pickup-date-series/{}/'.format(self.series.id)
         new_startdate = shift_date_in_local_time(
-            self.series.start_date, relativedelta(hours=2, minutes=20), self.group.timezone
+            self.series.start_date,
+            relativedelta(hours=2, minutes=20),
+            self.group.timezone,
         )
         response = self.client.patch(url, {'start_date': new_startdate.isoformat()})
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
@@ -164,7 +177,10 @@ class TestPickupDateSeriesChangeAPI(APITestCase, ExtractPaginationMixin):
 
         # compare resulting pickups
         url = '/api/pickup-dates/'
-        response = self.get_results(url, {'series': self.series.id, 'date_0': self.now})
+        response = self.get_results(url, {
+            'series': self.series.id,
+            'date_0': self.now,
+        })
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         for response_pickup, old_date in zip(response.data, original_dates):
             self.assertEqual(
@@ -176,7 +192,10 @@ class TestPickupDateSeriesChangeAPI(APITestCase, ExtractPaginationMixin):
         self.client.force_login(user=self.member)
         # get original dates
         url = '/api/pickup-dates/'
-        response = self.get_results(url, {'series': self.series.id, 'date_0': self.now})
+        response = self.get_results(url, {
+            'series': self.series.id,
+            'date_0': self.now,
+        })
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         original_dates = [parse(_['date']) for _ in response.data]
 
@@ -189,7 +208,10 @@ class TestPickupDateSeriesChangeAPI(APITestCase, ExtractPaginationMixin):
 
         # compare resulting pickups
         url = '/api/pickup-dates/'
-        response = self.get_results(url, {'series': self.series.id, 'date_0': self.now})
+        response = self.get_results(url, {
+            'series': self.series.id,
+            'date_0': self.now,
+        })
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         for response_pickup, old_date in zip_longest(response.data, original_dates):
             self.assertEqual(
@@ -201,7 +223,10 @@ class TestPickupDateSeriesChangeAPI(APITestCase, ExtractPaginationMixin):
         self.client.force_login(user=self.member)
         # get original dates
         url = '/api/pickup-dates/'
-        response = self.get_results(url, {'series': self.series.id, 'date_0': self.now})
+        response = self.get_results(url, {
+            'series': self.series.id,
+            'date_0': self.now,
+        })
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         original_dates = [parse(_['date']) for _ in response.data]
 
@@ -238,7 +263,10 @@ class TestPickupDateSeriesChangeAPI(APITestCase, ExtractPaginationMixin):
 
         # compare resulting pickups
         url = '/api/pickup-dates/'
-        response = self.get_results(url, {'series': self.series.id, 'date_0': self.now})
+        response = self.get_results(url, {
+            'series': self.series.id,
+            'date_0': self.now,
+        })
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 2, response.data)
 
@@ -255,7 +283,10 @@ class TestPickupDateSeriesChangeAPI(APITestCase, ExtractPaginationMixin):
 
         # compare resulting pickups
         url = '/api/pickup-dates/'
-        response = self.get_results(url, {'series': self.series.id, 'date_0': self.now})
+        response = self.get_results(url, {
+            'series': self.series.id,
+            'date_0': self.now,
+        })
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 1, response.data)
 
@@ -270,7 +301,10 @@ class TestPickupDateSeriesChangeAPI(APITestCase, ExtractPaginationMixin):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT, response.data)
 
         url = '/api/pickup-dates/'
-        response = self.get_results(url, {'series': self.series.id, 'date_0': self.now})
+        response = self.get_results(url, {
+            'series': self.series.id,
+            'date_0': self.now,
+        })
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
         self.assertEqual(len(response.data), 0, response.data)
 
@@ -372,7 +406,7 @@ class TestPickupDateSeriesChangeAPI(APITestCase, ExtractPaginationMixin):
             {
                 'date': pickup_under_test.date,
                 'max_collectors': pickup_under_test.max_collectors
-            }
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
 
@@ -429,11 +463,12 @@ class TestPickupDateSeriesAPIAuth(APITestCase):
     def test_create_as_nonmember_fails(self):
         self.client.force_login(self.non_member)
         response = self.client.post(
-            self.url, {
+            self.url,
+            {
                 'store': self.series.store.id,
                 'rule': 'FREQ=WEEKLY',
                 'start_date': timezone.now()
-            }
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual(response.data, {'store': ["You are not member of the store's group."]})

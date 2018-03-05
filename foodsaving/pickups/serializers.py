@@ -20,15 +20,31 @@ from foodsaving.pickups.models import (
 class PickupDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PickupDateModel
-        fields = ['id', 'date', 'series', 'store', 'max_collectors', 'collector_ids', 'description']
-        update_fields = ['date', 'max_collectors', 'description']
+        fields = [
+            'id',
+            'date',
+            'series',
+            'store',
+            'max_collectors',
+            'collector_ids',
+            'description',
+        ]
+        update_fields = [
+            'date',
+            'max_collectors',
+            'description',
+        ]
         extra_kwargs = {
             'series': {
                 'read_only': True
             },
         }
 
-    collector_ids = serializers.PrimaryKeyRelatedField(source='collectors', many=True, read_only=True)
+    collector_ids = serializers.PrimaryKeyRelatedField(
+        source='collectors',
+        many=True,
+        read_only=True,
+    )
 
     def validate_store(self, store):
         if not self.context['request'].user.groups.filter(store=store).exists():
@@ -41,9 +57,7 @@ class PickupDateSerializer(serializers.ModelSerializer):
             typus=HistoryTypus.PICKUP_CREATE,
             group=pickupdate.store.group,
             store=pickupdate.store,
-            users=[
-                self.context['request'].user,
-            ],
+            users=[self.context['request'].user],
             payload=self.initial_data,
         )
         return pickupdate
@@ -76,9 +90,7 @@ class PickupDateSerializer(serializers.ModelSerializer):
                 typus=HistoryTypus.PICKUP_MODIFY,
                 group=pickupdate.store.group,
                 store=pickupdate.store,
-                users=[
-                    self.context['request'].user,
-                ],
+                users=[self.context['request'].user],
                 payload=changed_data,
             )
         return pickupdate
@@ -104,9 +116,7 @@ class PickupDateJoinSerializer(serializers.ModelSerializer):
             typus=HistoryTypus.PICKUP_JOIN,
             group=pickupdate.store.group,
             store=pickupdate.store,
-            users=[
-                user,
-            ],
+            users=[user],
             payload=PickupDateSerializer(instance=pickupdate).data,
         )
         return pickupdate
@@ -138,8 +148,20 @@ class PickupDateLeaveSerializer(serializers.ModelSerializer):
 class PickupDateSeriesSerializer(serializers.ModelSerializer):
     class Meta:
         model = PickupDateSeriesModel
-        fields = ['id', 'max_collectors', 'store', 'rule', 'start_date', 'description']
-        update_fields = ('max_collectors', 'start_date', 'rule', 'description')
+        fields = [
+            'id',
+            'max_collectors',
+            'store',
+            'rule',
+            'start_date',
+            'description',
+        ]
+        update_fields = (
+            'max_collectors',
+            'start_date',
+            'rule',
+            'description',
+        )
 
     def create(self, validated_data):
         series = super().create(validated_data)
@@ -198,12 +220,28 @@ class PickupDateSeriesSerializer(serializers.ModelSerializer):
 class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = FeedbackModel
-        fields = ['id', 'weight', 'comment', 'about', 'given_by', 'created_at', 'is_editable']
-        read_only_fields = ['given_by', 'created_at']
-        extra_kwargs = {'given_by': {'default': serializers.CurrentUserDefault()}}
+        fields = [
+            'id',
+            'weight',
+            'comment',
+            'about',
+            'given_by',
+            'created_at',
+            'is_editable',
+        ]
+        read_only_fields = [
+            'given_by',
+            'created_at',
+        ]
+        extra_kwargs = {
+            'given_by': {
+                'default': serializers.CurrentUserDefault()
+            },
+        }
         validators = [
             UniqueTogetherValidator(
-                queryset=FeedbackModel.objects.all(), fields=FeedbackModel._meta.unique_together[0]
+                queryset=FeedbackModel.objects.all(),
+                fields=FeedbackModel._meta.unique_together[0],
             )
         ]
 

@@ -22,17 +22,21 @@ def prepare_group_summary_data(group, from_date, to_date):
 
     pickups_done_count = PickupDate.objects \
         .annotate(num_collectors=Count('collectors')) \
-        .filter(store__group=group,
-                date__gte=from_date,
-                date__lt=to_date,
-                num_collectors__gt=0).count()
+        .filter(
+            store__group=group,
+            date__gte=from_date,
+            date__lt=to_date,
+            num_collectors__gt=0,
+        ).count()
 
     pickups_missed_count = PickupDate.objects \
         .annotate(num_collectors=Count('collectors')) \
-        .filter(store__group=group,
-                date__gte=from_date,
-                date__lt=to_date,
-                num_collectors=0).count()
+        .filter(
+            store__group=group,
+            date__gte=from_date,
+            date__lt=to_date,
+            num_collectors=0,
+        ).count()
 
     messages = ConversationMessage.objects.filter(
         conversation__target_type=ContentType.objects.get_for_model(Group),
@@ -70,7 +74,10 @@ def prepare_group_summary_emails(group, from_date, to_date):
     grouped_members = itertools.groupby(members.order_by('language'), key=lambda member: member.language)
     return [
         prepare_email(
-            template='group_summary', context=context, to=[member.email for member in members], language=language
+            template='group_summary',
+            context=context,
+            to=[member.email for member in members],
+            language=language,
         ) for (language, members) in grouped_members
     ]
 

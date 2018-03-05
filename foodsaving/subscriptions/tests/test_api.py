@@ -11,7 +11,10 @@ class TestSubscriptionsAPI(APITestCase):
         user = UserFactory()
         self.client.force_login(user=user)
 
-        data = {'token': faker.uuid4(), 'platform': 'android'}
+        data = {
+            'token': faker.uuid4(),
+            'platform': 'android',
+        }
         response = self.client.post('/api/subscriptions/push/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['token'], data['token'])
@@ -21,7 +24,10 @@ class TestSubscriptionsAPI(APITestCase):
         user = UserFactory()
         self.client.force_login(user=user)
 
-        data = {'token': faker.uuid4(), 'platform': 'android'}
+        data = {
+            'token': faker.uuid4(),
+            'platform': 'android',
+        }
         response = self.client.post('/api/subscriptions/push/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -32,7 +38,10 @@ class TestSubscriptionsAPI(APITestCase):
         user = UserFactory()
         self.client.force_login(user=user)
 
-        data = {'token': faker.uuid4(), 'platform': 'android'}
+        data = {
+            'token': faker.uuid4(),
+            'platform': 'android',
+        }
         response = self.client.post('/api/subscriptions/push/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -46,7 +55,9 @@ class TestSubscriptionsAPI(APITestCase):
         user = UserFactory()
         token = faker.uuid4()
         subscription = PushSubscription.objects.create(
-            user=user, token=token, platform=PushSubscriptionPlatform.ANDROID
+            user=user,
+            token=token,
+            platform=PushSubscriptionPlatform.ANDROID,
         )
         self.client.force_login(user=user)
         response = self.client.get('/api/subscriptions/push/{}/'.format(subscription.id))
@@ -59,7 +70,9 @@ class TestSubscriptionsAPI(APITestCase):
         user = UserFactory()
         token = faker.uuid4()
         subscription = PushSubscription.objects.create(
-            user=user, token=token, platform=PushSubscriptionPlatform.ANDROID
+            user=user,
+            token=token,
+            platform=PushSubscriptionPlatform.ANDROID,
         )
         self.client.force_login(user=user)
         response = self.client.delete('/api/subscriptions/push/{}/'.format(subscription.id))

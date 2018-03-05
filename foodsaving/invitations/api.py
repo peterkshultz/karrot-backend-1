@@ -20,7 +20,12 @@ class NotInGroup(BasePermission):
         return not obj.group.is_member(request.user)
 
 
-class InvitationsViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
+class InvitationsViewSet(
+        mixins.CreateModelMixin,
+        mixins.RetrieveModelMixin,
+        mixins.ListModelMixin,
+        GenericViewSet,
+):
     """
     Invitations
     """

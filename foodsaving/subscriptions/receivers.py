@@ -33,7 +33,12 @@ class AbsoluteURIBuildingRequest:
 
 
 def send_in_channel(channel, topic, payload):
-    Channel(channel).send({'text': json.dumps({'topic': topic, 'payload': payload})})
+    Channel(channel).send({
+        'text': json.dumps({
+            'topic': topic,
+            'payload': payload,
+        })
+    })
 
 
 @receiver(post_save, sender=ConversationMessage)
@@ -108,7 +113,11 @@ def remove_participant(sender, instance, **kwargs):
     user = instance.user
     conversation = instance.conversation
     for subscription in ChannelSubscription.objects.filter(user=user):
-        send_in_channel(subscription.reply_channel, topic='conversations:leave', payload={'id': conversation.id})
+        send_in_channel(
+            subscription.reply_channel,
+            topic='conversations:leave',
+            payload={'id': conversation.id},
+        )
 
 
 # Group
@@ -117,11 +126,19 @@ def send_group_updates(sender, instance, **kwargs):
     group = instance
     detail_payload = GroupDetailSerializer(group).data
     for subscription in ChannelSubscription.objects.recent().filter(user__in=group.members.all()):
-        send_in_channel(subscription.reply_channel, topic='groups:group_detail', payload=detail_payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='groups:group_detail',
+            payload=detail_payload,
+        )
 
     preview_payload = GroupPreviewSerializer(group).data
     for subscription in ChannelSubscription.objects.recent():
-        send_in_channel(subscription.reply_channel, topic='groups:group_preview', payload=preview_payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='groups:group_preview',
+            payload=preview_payload,
+        )
 
 
 # Invitations
@@ -130,7 +147,11 @@ def send_invitation_updates(sender, instance, **kwargs):
     invitation = instance
     payload = InvitationSerializer(invitation).data
     for subscription in ChannelSubscription.objects.recent().filter(user__in=invitation.group.members.all()):
-        send_in_channel(subscription.reply_channel, topic='invitations:invitation', payload=payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='invitations:invitation',
+            payload=payload,
+        )
 
 
 @receiver(pre_delete, sender=Invitation)
@@ -138,7 +159,11 @@ def send_invitation_accept(sender, instance, **kwargs):
     invitation = instance
     payload = InvitationSerializer(invitation).data
     for subscription in ChannelSubscription.objects.recent().filter(user__in=invitation.group.members.all()):
-        send_in_channel(subscription.reply_channel, topic='invitations:invitation_accept', payload=payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='invitations:invitation_accept',
+            payload=payload,
+        )
 
 
 # Store
@@ -147,7 +172,11 @@ def send_store_updates(sender, instance, **kwargs):
     store = instance
     payload = StoreSerializer(store).data
     for subscription in ChannelSubscription.objects.recent().filter(user__in=store.group.members.all()):
-        send_in_channel(subscription.reply_channel, topic='stores:store', payload=payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='stores:store',
+            payload=payload,
+        )
 
 
 # Pickup Dates
@@ -161,9 +190,17 @@ def send_pickup_updates(sender, instance, **kwargs):
     payload = PickupDateSerializer(pickup).data
     for subscription in ChannelSubscription.objects.recent().filter(user__in=pickup.store.group.members.all()):
         if not pickup.deleted:
-            send_in_channel(subscription.reply_channel, topic='pickups:pickupdate', payload=payload)
+            send_in_channel(
+                subscription.reply_channel,
+                topic='pickups:pickupdate',
+                payload=payload,
+            )
         else:
-            send_in_channel(subscription.reply_channel, topic='pickups:pickupdate_deleted', payload=payload)
+            send_in_channel(
+                subscription.reply_channel,
+                topic='pickups:pickupdate_deleted',
+                payload=payload,
+            )
 
 
 @receiver(m2m_changed, sender=PickupDate.collectors.through)
@@ -173,7 +210,11 @@ def send_pickup_collector_updates(sender, instance, **kwargs):
         pickup = instance
         payload = PickupDateSerializer(pickup).data
         for subscription in ChannelSubscription.objects.recent().filter(user__in=pickup.store.group.members.all()):
-            send_in_channel(subscription.reply_channel, topic='pickups:pickupdate', payload=payload)
+            send_in_channel(
+                subscription.reply_channel,
+                topic='pickups:pickupdate',
+                payload=payload,
+            )
 
 
 # Pickup Date Series
@@ -182,7 +223,11 @@ def send_pickup_series_updates(sender, instance, **kwargs):
     series = instance
     payload = PickupDateSeriesSerializer(series).data
     for subscription in ChannelSubscription.objects.recent().filter(user__in=series.store.group.members.all()):
-        send_in_channel(subscription.reply_channel, topic='pickups:series', payload=payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='pickups:series',
+            payload=payload,
+        )
 
 
 @receiver(pre_delete, sender=PickupDateSeries)
@@ -190,7 +235,11 @@ def send_pickup_series_delete(sender, instance, **kwargs):
     series = instance
     payload = PickupDateSeriesSerializer(series).data
     for subscription in ChannelSubscription.objects.recent().filter(user__in=series.store.group.members.all()):
-        send_in_channel(subscription.reply_channel, topic='pickups:series_deleted', payload=payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='pickups:series_deleted',
+            payload=payload,
+        )
 
 
 # Feedback
@@ -199,7 +248,11 @@ def send_feedback_updates(sender, instance, **kwargs):
     feedback = instance
     for subscription in ChannelSubscription.objects.recent().filter(user__in=feedback.about.store.group.members.all()):
         payload = FeedbackSerializer(feedback, context={'request': MockRequest(user=subscription.user)}).data
-        send_in_channel(subscription.reply_channel, topic='feedback:feedback', payload=payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='feedback:feedback',
+            payload=payload,
+        )
 
 
 @receiver(pickup_done)
@@ -207,7 +260,11 @@ def send_feedback_possible_updates(sender, instance, **kwargs):
     pickup = instance
     payload = PickupDateSerializer(pickup).data
     for subscription in ChannelSubscription.objects.recent().filter(user__in=pickup.collectors.all()):
-        send_in_channel(subscription.reply_channel, topic='pickups:feedback_possible', payload=payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='pickups:feedback_possible',
+            payload=payload,
+        )
 
 
 # Users
@@ -217,7 +274,11 @@ def send_auth_user_updates(sender, instance, **kwargs):
     user = instance
     payload = AuthUserSerializer(user, context={'request': AbsoluteURIBuildingRequest()}).data
     for subscription in ChannelSubscription.objects.recent().filter(user=user):
-        send_in_channel(subscription.reply_channel, topic='auth:user', payload=payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='auth:user',
+            payload=payload,
+        )
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
@@ -227,7 +288,11 @@ def send_user_updates(sender, instance, **kwargs):
     payload = UserSerializer(user, context={'request': AbsoluteURIBuildingRequest()}).data
     users_groups = user.groups.values('id')
     for subscription in ChannelSubscription.objects.recent().filter(user__groups__in=users_groups).exclude(user=user):
-        send_in_channel(subscription.reply_channel, topic='users:user', payload=payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='users:user',
+            payload=payload,
+        )
 
 
 # History
@@ -236,4 +301,8 @@ def send_history_updates(sender, instance, **kwargs):
     history = instance
     payload = HistorySerializer(history).data
     for subscription in ChannelSubscription.objects.recent().filter(user__in=history.group.members.all()):
-        send_in_channel(subscription.reply_channel, topic='history:history', payload=payload)
+        send_in_channel(
+            subscription.reply_channel,
+            topic='history:history',
+            payload=payload,
+        )

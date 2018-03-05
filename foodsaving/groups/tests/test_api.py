@@ -19,9 +19,7 @@ class TestGroupsInfoAPI(APITestCase):
     def setUp(self):
         self.user = UserFactory()
         self.member = UserFactory()
-        self.group = GroupFactory(members=[
-            self.member,
-        ])
+        self.group = GroupFactory(members=[self.member])
         self.url = '/api/groups-info/'
 
     def test_list_groups_as_anon(self):
@@ -66,9 +64,7 @@ class TestGroupsAPI(APITestCase):
     def setUp(self):
         self.user = UserFactory()
         self.member = UserFactory()
-        self.group = GroupFactory(members=[
-            self.member,
-        ])
+        self.group = GroupFactory(members=[self.member])
         self.group_with_password = GroupFactory(password='abc')
         self.join_password_url = '/api/groups/{}/join/'.format(self.group_with_password.id)
         self.url = '/api/groups/'
@@ -183,15 +179,13 @@ class TestGroupsAPI(APITestCase):
             store=store, collectors=[self.member, self.user], date=timezone.now() + relativedelta(weeks=1)
         )
         past_pickupdate = PickupDateFactory(
-            store=store, collectors=[
-                self.member,
-            ], date=timezone.now() - relativedelta(weeks=1)
+            store=store,
+            collectors=[self.member],
+            date=timezone.now() - relativedelta(weeks=1),
         )
         unrelated_pickupdate = PickupDateFactory(
             date=timezone.now() + relativedelta(weeks=1),
-            collectors=[
-                self.member,
-            ],
+            collectors=[self.member],
         )
         GroupMembership.objects.create(group=unrelated_pickupdate.store.group, user=self.member)
 
@@ -380,10 +374,7 @@ class TestAgreementsAPI(APITestCase):
     def setUp(self):
         self.normal_member = UserFactory()
         self.agreement_manager = UserFactory()
-        self.group = GroupFactory(members=[
-            self.normal_member,
-            self.agreement_manager,
-        ])
+        self.group = GroupFactory(members=[self.normal_member, self.agreement_manager])
         self.agreement = Agreement.objects.create(group=self.group, title=faker.text(), content=faker.text())
         membership = GroupMembership.objects.get(group=self.group, user=self.agreement_manager)
         membership.roles.append(roles.GROUP_AGREEMENT_MANAGER)
@@ -392,7 +383,9 @@ class TestAgreementsAPI(APITestCase):
         # other group/agreement that neither user is part of
         self.other_group = GroupFactory()
         self.other_agreement = Agreement.objects.create(
-            group=self.other_group, title=faker.text(), content=faker.text()
+            group=self.other_group,
+            title=faker.text(),
+            content=faker.text(),
         )
 
     def test_can_create_agreement(self):
@@ -489,7 +482,7 @@ class TestAgreementsAPI(APITestCase):
             json.dumps({
                 'active_agreement': None
             }),
-            content_type='application/json'
+            content_type='application/json',
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -34,9 +34,7 @@ class Group(BaseModel, LocationModel, ConversationMixin):
         History.objects.create(
             typus=HistoryTypus.GROUP_JOIN,
             group=self,
-            users=[
-                user,
-            ],
+            users=[user],
             payload=history_payload,
         )
 
@@ -44,9 +42,7 @@ class Group(BaseModel, LocationModel, ConversationMixin):
         History.objects.create(
             typus=HistoryTypus.GROUP_LEAVE,
             group=self,
-            users=[
-                user,
-            ],
+            users=[user],
         )
         GroupMembership.objects.filter(group=self, user=user).delete()
 

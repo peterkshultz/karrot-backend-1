@@ -29,7 +29,7 @@ class TestUsersAPI(APITestCase):
             'display_name': faker.name(),
             'address': faker.address(),
             'latitude': faker.latitude(),
-            'longitude': faker.longitude()
+            'longitude': faker.longitude(),
         }
         mail.outbox = []
 
@@ -45,10 +45,11 @@ class TestUsersAPI(APITestCase):
         self.assertIn('Thank you for signing up', mail.outbox[0].body)
 
         response = self.client.post(
-            '/api/auth/', {
+            '/api/auth/',
+            {
                 'email': self.user_data['email'],
-                'password': self.user_data['password']
-            }
+                'password': self.user_data['password'],
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -90,14 +91,14 @@ class TestUserDeleteAPI(APITestCase):
         self.group = GroupFactory(members=[self.user, self.user2])
         self.store = StoreFactory(group=self.group)
         self.pickupdate = PickupDateFactory(
-            store=self.store, date=timezone.now() + relativedelta(days=1), collectors=[
-                self.user,
-            ]
+            store=self.store,
+            date=timezone.now() + relativedelta(days=1),
+            collectors=[self.user],
         )
         self.past_pickupdate = PickupDateFactory(
-            store=self.store, date=timezone.now() - relativedelta(days=1), collectors=[
-                self.user,
-            ]
+            store=self.store,
+            date=timezone.now() - relativedelta(days=1),
+            collectors=[self.user],
         )
         self.url = '/api/auth/user/'
 
@@ -116,17 +117,21 @@ class TestUserDeleteAPI(APITestCase):
         # actions are disabled when user is deleted
         self.client.logout()
         self.assertEqual(
-            self.client.post('/api/auth/',
-                             {
-                                 'email': self.user.email,
-                                 'password': self.user.display_name
-                             }).status_code, status.HTTP_400_BAD_REQUEST
+            self.client.post(
+                '/api/auth/',
+                {
+                    'email': self.user.email,
+                    'password': self.user.display_name
+                },
+            ).status_code, status.HTTP_400_BAD_REQUEST
         )
         self.assertEqual(
-            self.client.post('/api/auth/reset_password/',
-                             {
-                                 'email': self.user.email
-                             }).status_code, status.HTTP_400_BAD_REQUEST
+            self.client.post(
+                '/api/auth/reset_password/',
+                {
+                    'email': self.user.email
+                },
+            ).status_code, status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -137,20 +142,22 @@ class TestCreateUserErrors(APITestCase):
 
     def test_create_user_with_similar_cased_email_fails(self):
         response = self.client.post(
-            self.url, {
+            self.url,
+            {
                 'email': 'fancy@example.com',
                 'password': faker.name(),
                 'display_name': faker.name()
-            }
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         response = self.client.post(
-            self.url, {
+            self.url,
+            {
                 'email': 'Fancy@example.com',
                 'password': faker.name(),
                 'display_name': faker.name()
-            }
+            },
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response.data)
         self.assertEqual(response.data['email'], ['Similar e-mail exists: fancy@example.com'])
@@ -225,19 +232,23 @@ class TestSetCurrentGroup(APITestCase):
     def test_set_current_group_succeeds(self):
         self.client.force_login(user=self.user)
         self.assertEqual(
-            self.client.patch('/api/auth/user/',
-                              {
-                                  'current_group': self.group.id
-                              }).status_code, status.HTTP_200_OK
+            self.client.patch(
+                '/api/auth/user/',
+                {
+                    'current_group': self.group.id
+                },
+            ).status_code, status.HTTP_200_OK
         )
 
     def test_set_current_group_as_non_member_fails(self):
         self.client.force_login(user=self.user)
         self.assertEqual(
-            self.client.patch('/api/auth/user/',
-                              {
-                                  'current_group': self.unrelated_group.id
-                              }).status_code, status.HTTP_400_BAD_REQUEST
+            self.client.patch(
+                '/api/auth/user/',
+                {
+                    'current_group': self.unrelated_group.id
+                },
+            ).status_code, status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -245,7 +256,10 @@ class TestChangePassword(APITestCase):
     def setUp(self):
         self.user = UserFactory()
         self.url = '/api/auth/change_password/'
-        self.data = {'new_password': 'new_password', 'old_password': self.user.display_name}
+        self.data = {
+            'new_password': 'new_password',
+            'old_password': self.user.display_name,
+        }
 
     def test_change_succeeds(self):
         self.client.force_login(user=self.user)
@@ -261,7 +275,10 @@ class TestChangePassword(APITestCase):
 
     def test_change_with_wrong_password_fails(self):
         self.client.force_login(user=self.user)
-        data = {'new_password': self.data['new_password'], 'old_password': 'this_is_wrong'}
+        data = {
+            'new_password': self.data['new_password'],
+            'old_password': 'this_is_wrong',
+        }
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST, response)
         self.assertTrue(self.client.login(email=self.user.email, password=self.user.display_name))

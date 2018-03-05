@@ -9,8 +9,13 @@ from foodsaving.stores.serializers import StoreSerializer
 from foodsaving.utils.mixins import PartialUpdateModelMixin
 
 
-class StoreViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUpdateModelMixin, mixins.ListModelMixin,
-                   GenericViewSet):
+class StoreViewSet(
+        mixins.CreateModelMixin,
+        mixins.RetrieveModelMixin,
+        PartialUpdateModelMixin,
+        mixins.ListModelMixin,
+        GenericViewSet,
+):
     """
     Stores
 

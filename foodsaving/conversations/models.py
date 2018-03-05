@@ -17,7 +17,8 @@ class ConversationManager(models.Manager):
     @classmethod
     def get_for_target(self, target):
         return Conversation.objects.filter(
-            target_id=target.id, target_type=ContentType.objects.get_for_model(target)
+            target_id=target.id,
+            target_type=ContentType.objects.get_for_model(target),
         ).first()
 
     @classmethod
