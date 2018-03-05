@@ -23,14 +23,12 @@ class PickupDateSerializer(serializers.ModelSerializer):
         fields = ['id', 'date', 'series', 'store', 'max_collectors', 'collector_ids', 'description']
         update_fields = ['date', 'max_collectors', 'description']
         extra_kwargs = {
-            'series': {'read_only': True},
+            'series': {
+                'read_only': True
+            },
         }
 
-    collector_ids = serializers.PrimaryKeyRelatedField(
-        source='collectors',
-        many=True,
-        read_only=True
-    )
+    collector_ids = serializers.PrimaryKeyRelatedField(source='collectors', many=True, read_only=True)
 
     def validate_store(self, store):
         if not self.context['request'].user.groups.filter(store=store).exists():
@@ -43,7 +41,9 @@ class PickupDateSerializer(serializers.ModelSerializer):
             typus=HistoryTypus.PICKUP_CREATE,
             group=pickupdate.store.group,
             store=pickupdate.store,
-            users=[self.context['request'].user, ],
+            users=[
+                self.context['request'].user,
+            ],
             payload=self.initial_data,
         )
         return pickupdate
@@ -76,7 +76,9 @@ class PickupDateSerializer(serializers.ModelSerializer):
                 typus=HistoryTypus.PICKUP_MODIFY,
                 group=pickupdate.store.group,
                 store=pickupdate.store,
-                users=[self.context['request'].user, ],
+                users=[
+                    self.context['request'].user,
+                ],
                 payload=changed_data,
             )
         return pickupdate
@@ -102,7 +104,9 @@ class PickupDateJoinSerializer(serializers.ModelSerializer):
             typus=HistoryTypus.PICKUP_JOIN,
             group=pickupdate.store.group,
             store=pickupdate.store,
-            users=[user, ],
+            users=[
+                user,
+            ],
             payload=PickupDateSerializer(instance=pickupdate).data,
         )
         return pickupdate
@@ -123,7 +127,9 @@ class PickupDateLeaveSerializer(serializers.ModelSerializer):
             typus=HistoryTypus.PICKUP_LEAVE,
             group=pickupdate.store.group,
             store=pickupdate.store,
-            users=[user, ],
+            users=[
+                user,
+            ],
             payload=PickupDateSerializer(instance=pickupdate).data,
         )
         return pickupdate
@@ -142,7 +148,9 @@ class PickupDateSeriesSerializer(serializers.ModelSerializer):
             typus=HistoryTypus.SERIES_CREATE,
             group=series.store.group,
             store=series.store,
-            users=[self.context['request'].user, ],
+            users=[
+                self.context['request'].user,
+            ],
             payload=self.initial_data,
         )
         return series
@@ -161,7 +169,9 @@ class PickupDateSeriesSerializer(serializers.ModelSerializer):
                 typus=HistoryTypus.SERIES_MODIFY,
                 group=series.store.group,
                 store=series.store,
-                users=[self.context['request'].user, ],
+                users=[
+                    self.context['request'].user,
+                ],
                 payload=changed_data,
             )
         return series
@@ -193,8 +203,7 @@ class FeedbackSerializer(serializers.ModelSerializer):
         extra_kwargs = {'given_by': {'default': serializers.CurrentUserDefault()}}
         validators = [
             UniqueTogetherValidator(
-                queryset=FeedbackModel.objects.all(),
-                fields=FeedbackModel._meta.unique_together[0]
+                queryset=FeedbackModel.objects.all(), fields=FeedbackModel._meta.unique_together[0]
             )
         ]
 

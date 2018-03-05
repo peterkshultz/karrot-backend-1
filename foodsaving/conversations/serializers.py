@@ -10,12 +10,7 @@ class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation
         fields = [
-            'id',
-            'participants',
-            'created_at',
-            'updated_at',
-            'seen_up_to',
-            'unread_message_count',
+            'id', 'participants', 'created_at', 'updated_at', 'seen_up_to', 'unread_message_count',
             'email_notifications'
         ]
 
@@ -57,7 +52,7 @@ class ConversationSerializer(serializers.ModelSerializer):
 class ConversationMarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConversationParticipant
-        fields = ('seen_up_to',)
+        fields = ('seen_up_to', )
 
     def validate_seen_up_to(self, message):
         if not self.instance.conversation.messages.filter(id=message.id).exists():
@@ -73,20 +68,13 @@ class ConversationMarkSerializer(serializers.ModelSerializer):
 class ConversationEmailNotificationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConversationParticipant
-        fields = ('email_notifications',)
+        fields = ('email_notifications', )
 
 
 class ConversationMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConversationMessage
-        fields = [
-            'id',
-            'author',
-            'content',
-            'conversation',
-            'created_at',
-            'received_via'
-        ]
+        fields = ['id', 'author', 'content', 'conversation', 'created_at', 'received_via']
         read_only_fields = ('author', 'id', 'created_at', 'received_via')
 
     def validate_conversation(self, conversation):

@@ -23,7 +23,9 @@ class TestUsersAPI(APITestCase):
         self.group = GroupFactory(members=[self.user, self.user2])
         self.another_common_group = GroupFactory(members=[self.user, self.user2])
         self.user_in_another_group = UserFactory()
-        self.another_group = GroupFactory(members=[self.user_in_another_group, ])
+        self.another_group = GroupFactory(members=[
+            self.user_in_another_group,
+        ])
         mail.outbox = []
 
     def test_list_users_forbidden(self):

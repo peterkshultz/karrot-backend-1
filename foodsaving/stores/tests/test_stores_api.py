@@ -29,15 +29,19 @@ class TestStoresAPI(APITestCase, ExtractPaginationMixin):
         self.user = UserFactory()
 
         # another store for above group
-        self.store_data = {'name': faker.name(),
-                           'description': faker.name(),
-                           'group': self.group.id,
-                           'address': faker.address(),
-                           'latitude': faker.latitude(),
-                           'longitude': faker.longitude()}
+        self.store_data = {
+            'name': faker.name(),
+            'description': faker.name(),
+            'group': self.group.id,
+            'address': faker.address(),
+            'latitude': faker.latitude(),
+            'longitude': faker.longitude()
+        }
 
         # another group
-        self.different_group = GroupFactory(members=[self.member2, ])
+        self.different_group = GroupFactory(members=[
+            self.member2,
+        ])
 
     def test_create_store(self):
         response = self.client.post(self.url, self.store_data, format='json')
@@ -148,7 +152,9 @@ class TestStoreChangesPickupDateSeriesAPI(APITestCase, ExtractPaginationMixin):
         self.now = timezone.now()
         self.url = '/api/stores/'
         self.member = UserFactory()
-        self.group = GroupFactory(members=[self.member, ])
+        self.group = GroupFactory(members=[
+            self.member,
+        ])
         self.store = StoreFactory(group=self.group)
         self.store_url = self.url + str(self.store.id) + '/'
         self.series = PickupDateSeriesFactory(max_collectors=3, store=self.store)

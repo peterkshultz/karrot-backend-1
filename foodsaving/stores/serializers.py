@@ -11,9 +11,9 @@ from foodsaving.stores.models import Store as StoreModel
 class StoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = StoreModel
-        fields = ['id', 'name', 'description', 'group',
-                  'address', 'latitude', 'longitude',
-                  'weeks_in_advance', 'status']
+        fields = [
+            'id', 'name', 'description', 'group', 'address', 'latitude', 'longitude', 'weeks_in_advance', 'status'
+        ]
         extra_kwargs = {
             'name': {
                 'min_length': 3
@@ -24,10 +24,7 @@ class StoreSerializer(serializers.ModelSerializer):
             }
         }
 
-    status = serializers.ChoiceField(
-        choices=StoreModel.STATUSES,
-        default=StoreModel.DEFAULT_STATUS
-    )
+    status = serializers.ChoiceField(choices=StoreModel.STATUSES, default=StoreModel.DEFAULT_STATUS)
 
     def create(self, validated_data):
         store = super().create(validated_data)
@@ -35,7 +32,9 @@ class StoreSerializer(serializers.ModelSerializer):
             typus=HistoryTypus.STORE_CREATE,
             group=store.group,
             store=store,
-            users=[self.context['request'].user, ],
+            users=[
+                self.context['request'].user,
+            ],
             payload=self.initial_data,
         )
         return store
@@ -54,7 +53,9 @@ class StoreSerializer(serializers.ModelSerializer):
                 typus=HistoryTypus.STORE_MODIFY,
                 group=store.group,
                 store=store,
-                users=[self.context['request'].user, ],
+                users=[
+                    self.context['request'].user,
+                ],
                 payload=changed_data,
             )
         return store

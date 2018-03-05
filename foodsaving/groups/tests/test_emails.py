@@ -40,10 +40,7 @@ class TestGroupSummaryEmails(APITestCase):
             .members_with_notification_type(GroupNotificationType.WEEKLY_SUMMARY) \
             .exclude(groupmembership__user__in=get_user_model().objects.unverified_or_ignored())
 
-        self.assertEqual(
-            sorted(emails[0].to),
-            sorted([member.email for member in expected_members])
-        )
+        self.assertEqual(sorted(emails[0].to), sorted([member.email for member in expected_members]))
         self.assertNotIn(self.user_without_notifications.email, emails[0].to)
 
     def test_creates_three_emails_for_three_languages(self):
@@ -70,10 +67,7 @@ class TestGroupSummaryEmails(APITestCase):
             .members_with_notification_type(GroupNotificationType.WEEKLY_SUMMARY) \
             .exclude(groupmembership__user__in=get_user_model().objects.unverified_or_ignored())
 
-        self.assertEqual(
-            sorted(to),
-            sorted([member.email for member in expected_members])
-        )
+        self.assertEqual(sorted(to), sorted([member.email for member in expected_members]))
 
         self.assertNotIn(self.user_without_notifications.email, to)
 

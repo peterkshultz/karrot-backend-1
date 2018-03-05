@@ -30,7 +30,7 @@ class AuthView(generics.GenericAPIView):
 
 
 class AuthUserView(generics.GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, )
     serializer_class = AuthUserSerializer
 
     def get_permissions(self):
@@ -71,7 +71,9 @@ class AuthUserView(generics.GenericAPIView):
         from foodsaving.groups.models import GroupMembership
 
         # Emits pre_delete and post_delete signals, they are used to remove the user from pick-ups
-        for _ in Group.objects.filter(members__in=[user, ]):
+        for _ in Group.objects.filter(members__in=[
+                user,
+        ]):
             GroupMembership.objects.filter(group=_, user=user).delete()
 
         user.description = ''
@@ -118,7 +120,7 @@ class ResendVerificationView(views.APIView):
 
 
 class ResetPasswordView(views.APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny, )
 
     def post(self, request):
         """
@@ -128,13 +130,11 @@ class ResetPasswordView(views.APIView):
         """
         request_email = request.data.get('email')
         if not request_email:
-            return Response(status=status.HTTP_400_BAD_REQUEST,
-                            data={'email': ['this field is required']})
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'email': ['this field is required']})
         try:
             user = get_user_model().objects.active().get(email__iexact=request_email)
         except get_user_model().DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST,
-                            data={'email': ['e-mail address is not registered']})
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'email': ['e-mail address is not registered']})
 
         user.reset_password()
         return Response(status=status.HTTP_204_NO_CONTENT, data={})

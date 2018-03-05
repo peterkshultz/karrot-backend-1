@@ -7,15 +7,11 @@ from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from foodsaving.conversations.models import (
-    Conversation,
-    ConversationMessage
-)
+from foodsaving.conversations.models import (Conversation, ConversationMessage)
 from foodsaving.conversations.serializers import (
-    ConversationSerializer,
-    ConversationMessageSerializer,
-    ConversationMarkSerializer,
-    ConversationEmailNotificationsSerializer)
+    ConversationSerializer, ConversationMessageSerializer, ConversationMarkSerializer,
+    ConversationEmailNotificationsSerializer
+)
 
 
 class MessagePagination(CursorPagination):
@@ -41,26 +37,19 @@ class IsConversationParticipant(BasePermission):
         return True
 
 
-class ConversationViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    GenericViewSet
-):
+class ConversationViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     """
     Conversations
     """
 
     queryset = Conversation.objects
     serializer_class = ConversationSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
         return self.queryset.filter(participants=self.request.user)
 
-    @detail_route(
-        methods=['POST'],
-        serializer_class=ConversationMarkSerializer
-    )
+    @detail_route(methods=['POST'], serializer_class=ConversationMarkSerializer)
     def mark(self, request, pk=None):
         conversation = self.get_object()
         participant = conversation.conversationparticipant_set.get(user=request.user)
@@ -69,10 +58,7 @@ class ConversationViewSet(
         serializer.save()
         return Response(serializer.data)
 
-    @detail_route(
-        methods=['POST'],
-        serializer_class=ConversationEmailNotificationsSerializer
-    )
+    @detail_route(methods=['POST'], serializer_class=ConversationEmailNotificationsSerializer)
     def email_notifications(self, request, pk=None):
         conversation = self.get_object()
         participant = conversation.conversationparticipant_set.get(user=request.user)
@@ -82,11 +68,7 @@ class ConversationViewSet(
         return Response(serializer.data)
 
 
-class ConversationMessageViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    GenericViewSet
-):
+class ConversationMessageViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, GenericViewSet):
     """
     ConversationMessages
     """
@@ -94,8 +76,8 @@ class ConversationMessageViewSet(
     queryset = ConversationMessage.objects
     serializer_class = ConversationMessageSerializer
     permission_classes = (IsAuthenticated, IsConversationParticipant)
-    filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('conversation',)
+    filter_backends = (DjangoFilterBackend, )
+    filter_fields = ('conversation', )
     pagination_class = MessagePagination
 
     def get_queryset(self):

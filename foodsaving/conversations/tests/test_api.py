@@ -19,14 +19,10 @@ class TestConversationsAPI(APITestCase):
         self.not_participant2 = UserFactory()
         self.not_participant3 = UserFactory()
         self.conversation1 = ConversationFactory()
-        self.conversation1.sync_users([
-            self.participant1, self.participant2, self.participant3
-        ])
+        self.conversation1.sync_users([self.participant1, self.participant2, self.participant3])
         self.conversation1.messages.create(author=self.participant1, content='hello')
         self.conversation2 = ConversationFactory()
-        self.conversation2.sync_users([
-            self.participant1
-        ])
+        self.conversation2.sync_users([self.participant1])
         self.conversation2.messages.create(author=self.participant1, content='hello2')
         self.conversation3 = ConversationFactory()  # conversation noone is in
 
@@ -148,8 +144,9 @@ class TestConversationsSeenUpToAPI(APITestCase):
         data = {'seen_up_to': 9817298172}
         response = self.client.post('/api/conversations/{}/mark/'.format(self.conversation.id), data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['seen_up_to'][0],
-                         'Invalid pk "{}" - object does not exist.'.format(data['seen_up_to']))
+        self.assertEqual(
+            response.data['seen_up_to'][0], 'Invalid pk "{}" - object does not exist.'.format(data['seen_up_to'])
+        )
 
     def test_mark_seen_up_to_fails_for_message_in_other_conversation(self):
         conversation = ConversationFactory()
@@ -179,9 +176,7 @@ class TestConversationsEmailNotificationsAPI(APITestCase):
 
         data = {'email_notifications': False}
         response = self.client.post(
-            '/api/conversations/{}/email_notifications/'.format(self.conversation.id),
-            data,
-            format='json'
+            '/api/conversations/{}/email_notifications/'.format(self.conversation.id), data, format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['email_notifications'], False)
@@ -199,9 +194,7 @@ class TestConversationsEmailNotificationsAPI(APITestCase):
 
         data = {'email_notifications': True}
         response = self.client.post(
-            '/api/conversations/{}/email_notifications/'.format(self.conversation.id),
-            data,
-            format='json'
+            '/api/conversations/{}/email_notifications/'.format(self.conversation.id), data, format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['email_notifications'], True)

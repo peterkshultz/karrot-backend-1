@@ -71,33 +71,39 @@ class Command(BaseCommand):
         password = '123'
 
         def make_user():
-            data = c.post('/api/auth/user/', {
-                'email': str(timezone.now().microsecond) + faker.email(),
-                'password': password,
-                'display_name': faker.name(),
-                'description': 'I am a fake user',
-                'mobile_number': faker.phone_number()
-            }).data
+            data = c.post(
+                '/api/auth/user/', {
+                    'email': str(timezone.now().microsecond) + faker.email(),
+                    'password': password,
+                    'display_name': faker.name(),
+                    'description': 'I am a fake user',
+                    'mobile_number': faker.phone_number()
+                }
+            ).data
             print('created user:', data['email'])
             return data
 
         def make_group():
-            data = c.post('/api/groups/', {
-                'name': 'Group ' + faker.city(),
-                'description': faker.text(),
-                'timezone': 'Europe/Berlin',
-                'address': faker.street_address(),
-                'latitude': faker.latitude(),
-                'longitude': faker.longitude()
-            }).data
+            data = c.post(
+                '/api/groups/', {
+                    'name': 'Group ' + faker.city(),
+                    'description': faker.text(),
+                    'timezone': 'Europe/Berlin',
+                    'address': faker.street_address(),
+                    'latitude': faker.latitude(),
+                    'longitude': faker.longitude()
+                }
+            ).data
             print('created group: ', data['id'], data['name'])
             return data
 
         def modify_group(group):
-            data = c.patch('/api/groups/{}/'.format(group), {
-                'name': 'Group (edited) ' + faker.city(),
-                'description': faker.text(),
-            }).data
+            data = c.patch(
+                '/api/groups/{}/'.format(group), {
+                    'name': 'Group (edited) ' + faker.city(),
+                    'description': faker.text(),
+                }
+            ).data
             print('modified group: ', group)
             return data
 
@@ -110,23 +116,27 @@ class Command(BaseCommand):
             return c.post('/api/groups/{}/leave/'.format(group)).data
 
         def make_store(group):
-            data = c.post('/api/stores/', {
-                'name': 'Store ' + faker.name(),
-                'description': faker.text(),
-                'group': group,
-                'address': faker.street_address(),
-                'latitude': faker.latitude(),
-                'longitude': faker.longitude(),
-                'status': 'active'
-            }).data
+            data = c.post(
+                '/api/stores/', {
+                    'name': 'Store ' + faker.name(),
+                    'description': faker.text(),
+                    'group': group,
+                    'address': faker.street_address(),
+                    'latitude': faker.latitude(),
+                    'longitude': faker.longitude(),
+                    'status': 'active'
+                }
+            ).data
             print('created store: ', data['id'], data['name'])
             return data
 
         def modify_store(store):
-            data = c.patch('/api/stores/{}/'.format(store), {
-                'name': 'Store (edited) ' + faker.name(),
-                'description': faker.text(),
-            }).data
+            data = c.patch(
+                '/api/stores/{}/'.format(store), {
+                    'name': 'Store (edited) ' + faker.name(),
+                    'description': faker.text(),
+                }
+            ).data
             print('modified store: ', store)
             return data
 
@@ -136,20 +146,25 @@ class Command(BaseCommand):
             return data
 
         def make_series(store):
-            data = c.post('/api/pickup-date-series/', {
-                'start_date': faker.date_time_between(start_date='now', end_date='+24h', tzinfo=pytz.utc),
-                'rule': 'FREQ=WEEKLY;BYDAY=MO,TU,SA',
-                'max_collectors': 10,
-                'store': store
-            }).data
+            data = c.post(
+                '/api/pickup-date-series/',
+                {
+                    'start_date': faker.date_time_between(start_date='now', end_date='+24h', tzinfo=pytz.utc),
+                    'rule': 'FREQ=WEEKLY;BYDAY=MO,TU,SA',
+                    'max_collectors': 10,
+                    'store': store
+                }
+            ).data
             print('created series: ', data)
             return data
 
         def modify_series(series):
-            data = c.patch('/api/pickup-date-series/{}/'.format(series), {
-                'start_date': timezone.now().replace(hour=20),
-                'rule': 'FREQ=WEEKLY'
-            }).data
+            data = c.patch(
+                '/api/pickup-date-series/{}/'.format(series), {
+                    'start_date': timezone.now().replace(hour=20),
+                    'rule': 'FREQ=WEEKLY'
+                }
+            ).data
             print('modified series: ', series)
             return data
 
@@ -159,18 +174,18 @@ class Command(BaseCommand):
             return data
 
         def make_pickup(store):
-            data = c.post('/api/pickup-dates/', {
-                'date': faker.date_time_between(start_date='+2d', end_date='+7d', tzinfo=pytz.utc),
-                'store': store,
-                'max_collectors': 10
-            }).data
+            data = c.post(
+                '/api/pickup-dates/', {
+                    'date': faker.date_time_between(start_date='+2d', end_date='+7d', tzinfo=pytz.utc),
+                    'store': store,
+                    'max_collectors': 10
+                }
+            ).data
             print('created pickup: ', data)
             return data
 
         def modify_pickup(pickup):
-            data = c.post('/api/pickup-dates/{}/'.format(pickup), {
-                'max_collectors': 3
-            }).data
+            data = c.post('/api/pickup-dates/{}/'.format(pickup), {'max_collectors': 3}).data
             print('modified pickup: ', pickup)
             return data
 

@@ -8,19 +8,15 @@ from rest_framework.viewsets import GenericViewSet
 from foodsaving.users.serializers import UserSerializer
 
 
-class UserViewSet(
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    GenericViewSet
-):
+class UserViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
     """
     User Profiles
     """
     queryset = get_user_model().objects.active()
     serializer_class = UserSerializer
-    filter_backends = (filters.SearchFilter,)
-    permission_classes = (IsAuthenticated,)
-    search_fields = ('display_name',)
+    filter_backends = (filters.SearchFilter, )
+    permission_classes = (IsAuthenticated, )
+    search_fields = ('display_name', )
 
     def retrieve(self, request, *args, **kwargs):
         """Get one user profile"""

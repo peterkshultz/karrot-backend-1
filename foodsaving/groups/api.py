@@ -38,11 +38,7 @@ class CanUpdateMemberships(BasePermission):
         return obj.group.is_member_with_role(request.user, roles.GROUP_MEMBERSHIP_MANAGER)
 
 
-class GroupInfoViewSet(
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    GenericViewSet
-):
+class GroupInfoViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
     """
     Group Info - public information
 
@@ -58,14 +54,8 @@ class GroupInfoViewSet(
     serializer_class = GroupPreviewSerializer
 
 
-class GroupViewSet(
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    PartialUpdateModelMixin,
-    mixins.ListModelMixin,
-    RetrieveConversationMixin,
-    GenericViewSet
-):
+class GroupViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUpdateModelMixin, mixins.ListModelMixin,
+                   RetrieveConversationMixin, GenericViewSet):
     """
     Your groups: list, create, update
     """
@@ -74,7 +64,7 @@ class GroupViewSet(
     filter_class = GroupsFilter
     search_fields = ('name', 'public_description')
     serializer_class = GroupDetailSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, )
 
     def create(self, request, *args, **kwargs):
         """Create a new group"""
@@ -103,40 +93,28 @@ class GroupViewSet(
         return self.queryset.filter(members=self.request.user)
 
     @detail_route(
-        methods=['POST'],
-        permission_classes=(IsAuthenticated, IsNotMember),
-        serializer_class=GroupJoinSerializer
+        methods=['POST'], permission_classes=(IsAuthenticated, IsNotMember), serializer_class=GroupJoinSerializer
     )
     def join(self, request, pk=None):
         """Join a group"""
         return self.partial_update(request)
 
-    @detail_route(
-        methods=['POST'],
-        serializer_class=GroupLeaveSerializer
-    )
+    @detail_route(methods=['POST'], serializer_class=GroupLeaveSerializer)
     def leave(self, request, pk=None):
         """Leave one of your groups"""
         return self.partial_update(request)
 
-    @list_route(
-        methods=['GET'],
-        serializer_class=TimezonesSerializer
-    )
+    @list_route(methods=['GET'], serializer_class=TimezonesSerializer)
     def timezones(self, request, pk=None):
         """List all accepted timezones"""
-        return Response(self.get_serializer(
-            {'all_timezones': pytz.all_timezones}
-        ).data)
+        return Response(self.get_serializer({'all_timezones': pytz.all_timezones}).data)
 
     @detail_route()
     def conversation(self, request, pk=None):
         """Get wall conversation ID of this group"""
         return self.retrieve_conversation(request, pk)
 
-    @detail_route(
-        methods=['POST']
-    )
+    @detail_route(methods=['POST'])
     def mark_user_active(self, request, pk=None):
         """Mark that the logged-in user is active in the group"""
         gm = get_object_or_404(GroupMembership.objects, group=pk, user=request.user)
@@ -150,7 +128,7 @@ class GroupViewSet(
         permission_classes=(IsAuthenticated, CanUpdateMemberships),
         url_name='user-roles',
         url_path='users/(?P<user_id>[^/.]+)/roles/(?P<role_name>[^/.]+)',
-        serializer_class=EmptySerializer  # for Swagger
+        serializer_class=EmptySerializer,  # for Swagger
     )
     def modify_user_roles(self, request, pk, user_id, role_name):
         """add (POST) or remove (DELETE) a membership role"""
@@ -169,7 +147,7 @@ class GroupViewSet(
 
     @detail_route(
         methods=['PUT', 'DELETE'],
-        permission_classes=(IsAuthenticated,),
+        permission_classes=(IsAuthenticated, ),
         url_name='notification_types',
         url_path='notification_types/(?P<notification_type>[^/.]+)',
         serializer_class=EmptySerializer  # for Swagger
@@ -190,16 +168,11 @@ class GroupViewSet(
         return Response(GroupMembershipInfoSerializer(membership).data)
 
 
-class AgreementViewSet(
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    PartialUpdateModelMixin,
-    mixins.ListModelMixin,
-    GenericViewSet
-):
+class AgreementViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, PartialUpdateModelMixin,
+                       mixins.ListModelMixin, GenericViewSet):
     queryset = Agreement.objects
     serializer_class = AgreementSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
         return self.queryset.filter(group__members=self.request.user)

@@ -14,11 +14,7 @@ class TestEmailUtils(APITestCase):
         self.user = UserFactory()
 
     def test_emailinvitation(self):
-        invitation = Invitation.objects.create(
-            email='bla@bla.com',
-            group=self.group,
-            invited_by=self.user
-        )
+        invitation = Invitation.objects.create(email='bla@bla.com', group=self.group, invited_by=self.user)
         email = email_utils.prepare_emailinvitation_email(invitation)
         self.assertEqual(len(email.alternatives), 0)
         self.assertEqual(email.to[0], 'bla@bla.com')

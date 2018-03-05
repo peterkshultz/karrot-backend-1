@@ -25,7 +25,10 @@ class TimezoneField(serializers.Field):
 class GroupMembershipInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupMembership
-        fields = ('created_at', 'roles',)
+        fields = (
+            'created_at',
+            'roles',
+        )
         extra_kwargs = {
             'created_at': {
                 'read_only': True
@@ -106,8 +109,10 @@ class GroupDetailSerializer(serializers.ModelSerializer):
             History.objects.create(
                 typus=HistoryTypus.GROUP_MODIFY,
                 group=group,
-                users=[user, ],
-                payload=changed_data
+                users=[
+                    user,
+                ],
+                payload=changed_data,
             )
         return group
 
@@ -118,8 +123,10 @@ class GroupDetailSerializer(serializers.ModelSerializer):
         History.objects.create(
             typus=HistoryTypus.GROUP_CREATE,
             group=group,
-            users=[user, ],
-            payload=self.initial_data
+            users=[
+                user,
+            ],
+            payload=self.initial_data,
         )
         return group
 
@@ -127,13 +134,7 @@ class GroupDetailSerializer(serializers.ModelSerializer):
 class AgreementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Agreement
-        fields = [
-            'id',
-            'title',
-            'content',
-            'group',
-            'agreed'
-        ]
+        fields = ['id', 'title', 'content', 'group', 'agreed']
         extra_kwargs = {
             'agreed': {
                 'read_only': True
@@ -190,16 +191,7 @@ class GroupPreviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GroupModel
-        fields = [
-            'id',
-            'name',
-            'public_description',
-            'address',
-            'latitude',
-            'longitude',
-            'members',
-            'protected'
-        ]
+        fields = ['id', 'name', 'public_description', 'address', 'latitude', 'longitude', 'members', 'protected']
 
     protected = serializers.SerializerMethodField()
 
@@ -235,10 +227,7 @@ class GroupLeaveSerializer(serializers.ModelSerializer):
 
 
 class TimezonesSerializer(serializers.Serializer):
-    all_timezones = serializers.ListField(
-        child=serializers.CharField(),
-        read_only=True
-    )
+    all_timezones = serializers.ListField(child=serializers.CharField(), read_only=True)
 
 
 class EmptySerializer(serializers.Serializer):
@@ -247,9 +236,10 @@ class EmptySerializer(serializers.Serializer):
 
 class GroupMembershipAddRoleSerializer(serializers.Serializer):
     role_name = serializers.ChoiceField(
-        choices=(roles.GROUP_MEMBERSHIP_MANAGER, roles.GROUP_AGREEMENT_MANAGER,),
-        required=True,
-        write_only=True
+        choices=(
+            roles.GROUP_MEMBERSHIP_MANAGER,
+            roles.GROUP_AGREEMENT_MANAGER,
+        ), required=True, write_only=True
     )
 
     def update(self, instance, validated_data):
@@ -260,10 +250,7 @@ class GroupMembershipAddRoleSerializer(serializers.Serializer):
 
 
 class GroupMembershipRemoveRoleSerializer(serializers.Serializer):
-    role_name = serializers.CharField(
-        required=True,
-        write_only=True
-    )
+    role_name = serializers.CharField(required=True, write_only=True)
 
     def update(self, instance, validated_data):
         role = validated_data['role_name']
@@ -274,9 +261,7 @@ class GroupMembershipRemoveRoleSerializer(serializers.Serializer):
 
 class GroupMembershipAddNotificationTypeSerializer(serializers.Serializer):
     notification_type = serializers.ChoiceField(
-        choices=(GroupNotificationType.WEEKLY_SUMMARY,),
-        required=True,
-        write_only=True
+        choices=(GroupNotificationType.WEEKLY_SUMMARY, ), required=True, write_only=True
     )
 
     def update(self, instance, validated_data):
@@ -287,10 +272,7 @@ class GroupMembershipAddNotificationTypeSerializer(serializers.Serializer):
 
 
 class GroupMembershipRemoveNotificationTypeSerializer(serializers.Serializer):
-    notification_type = serializers.CharField(
-        required=True,
-        write_only=True
-    )
+    notification_type = serializers.CharField(required=True, write_only=True)
 
     def update(self, instance, validated_data):
         notification_type = validated_data['notification_type']

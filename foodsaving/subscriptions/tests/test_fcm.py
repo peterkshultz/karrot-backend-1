@@ -54,16 +54,19 @@ class FCMTests(TestCase):
 
     def test_removes_invalid_subscriptions(self, m):
         with override_fcm_key('something'):
-            m.post('https://fcm.googleapis.com/fcm/send', json={
-                'results': [
-                    {
-                        # not an error
-                    },
-                    {
-                        'error': 'InvalidRegistration'
-                    }
-                ]
-            })
+            m.post(
+                'https://fcm.googleapis.com/fcm/send',
+                json={
+                    'results': [
+                        {
+                            # not an error
+                        },
+                        {
+                            'error': 'InvalidRegistration'
+                        }
+                    ]
+                }
+            )
             user = UserFactory()
             valid_token = faker.uuid4()
             invalid_token = faker.uuid4()
@@ -78,6 +81,7 @@ class FCMTests(TestCase):
         with logger_warning_mock() as warning_mock:
             with override_fcm_key():
                 warning_mock.assert_called_with(
-                    'Please configure FCM_SERVER_KEY in your settings to use push messaging')
+                    'Please configure FCM_SERVER_KEY in your settings to use push messaging'
+                )
                 result = notify_multiple_devices(registration_ids=['mytoken'])
                 self.assertIsNone(result)

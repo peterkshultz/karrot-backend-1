@@ -15,19 +15,14 @@ from foodsaving.webhooks.models import EmailEvent
 def notify_participants(message):
     # exclude emails that had bounces or similar events recently
     ignored_addresses = EmailEvent.objects.filter(
-        created_at__gte=now() - relativedelta(months=6),
-        event__in=settings.EMAIL_EVENTS_AVOID
+        created_at__gte=now() - relativedelta(months=6), event__in=settings.EMAIL_EVENTS_AVOID
     ).values('address')
 
     participants_to_notify = ConversationParticipant.objects.filter(
         conversation=message.conversation,
         email_notifications=True,
         user__mail_verified=True,
-    ).exclude(
-        user=message.author
-    ).exclude(
-        user__email__in=ignored_addresses
-    )
+    ).exclude(user=message.author).exclude(user__email__in=ignored_addresses)
 
     for participant in participants_to_notify:
         try:

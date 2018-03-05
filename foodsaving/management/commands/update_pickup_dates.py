@@ -4,6 +4,5 @@ from foodsaving.pickups.models import PickupDateSeries
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
         PickupDateSeries.objects.create_all_pickup_dates()

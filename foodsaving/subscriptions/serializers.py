@@ -9,11 +9,7 @@ from foodsaving.users.serializers import UserSerializer
 class PushSubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PushSubscription
-        fields = [
-            'id',
-            'token',
-            'platform'
-        ]
+        fields = ['id', 'token', 'platform']
 
     platform = SerializerMethodField()
 
@@ -23,9 +19,7 @@ class PushSubscriptionSerializer(serializers.ModelSerializer):
 
 class CreatePushSubscriptionSerializer(PushSubscriptionSerializer):
     class Meta(PushSubscriptionSerializer.Meta):
-        fields = PushSubscriptionSerializer.Meta.fields + [
-            'user'
-        ]
+        fields = PushSubscriptionSerializer.Meta.fields + ['user']
         validators = [
             UniqueTogetherValidator(
                 queryset=PushSubscription.objects.all(),
@@ -36,7 +30,4 @@ class CreatePushSubscriptionSerializer(PushSubscriptionSerializer):
     # user field is only here so make the UniqueTogetherValidator work
     # https://stackoverflow.com/a/27239870
     # https://github.com/encode/django-rest-framework/issues/2164#issuecomment-65196943
-    user = UserSerializer(
-        read_only=True,
-        default=CurrentUserDefault()
-    )
+    user = UserSerializer(read_only=True, default=CurrentUserDefault())

@@ -23,7 +23,7 @@ class Group(BaseModel, LocationModel, ConversationMixin):
         'groups.Agreement',
         related_name='active_group',
         null=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
     )
 
     def __str__(self):
@@ -34,15 +34,19 @@ class Group(BaseModel, LocationModel, ConversationMixin):
         History.objects.create(
             typus=HistoryTypus.GROUP_JOIN,
             group=self,
-            users=[user, ],
-            payload=history_payload
+            users=[
+                user,
+            ],
+            payload=history_payload,
         )
 
     def remove_member(self, user):
         History.objects.create(
             typus=HistoryTypus.GROUP_LEAVE,
             group=self,
-            users=[user, ]
+            users=[
+                user,
+            ],
         )
         GroupMembership.objects.filter(group=self, user=user).delete()
 
@@ -50,15 +54,19 @@ class Group(BaseModel, LocationModel, ConversationMixin):
         return not user.is_anonymous and GroupMembership.objects.filter(group=self, user=user).exists()
 
     def is_member_with_role(self, user, role_name):
-        return not user.is_anonymous and GroupMembership.objects.filter(group=self, user=user,
-                                                                        roles__contains=[role_name]).exists()
+        return not user.is_anonymous and GroupMembership.objects.filter(
+            group=self, user=user, roles__contains=[role_name]
+        ).exists()
 
     def accept_invite(self, user, invited_by, invited_at):
-        self.add_member(user, history_payload={
-            'invited_by': invited_by.id,
-            'invited_at': invited_at.isoformat(),
-            'invited_via': 'e-mail'
-        })
+        self.add_member(
+            user,
+            history_payload={
+                'invited_by': invited_by.id,
+                'invited_at': invited_at.isoformat(),
+                'invited_via': 'e-mail'
+            },
+        )
 
     def members_with_notification_type(self, type):
         return self.members.filter(groupmembership__notification_types__contains=[type])
@@ -68,7 +76,11 @@ class Agreement(BaseModel):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     title = TextField()
     content = TextField()
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='agreements', through='UserAgreement')
+    users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='agreements',
+        through='UserAgreement',
+    )
 
 
 class UserAgreement(BaseModel):
@@ -93,7 +105,7 @@ class GroupMembership(BaseModel):
 
     class Meta:
         db_table = 'groups_group_members'
-        unique_together = (('group', 'user'),)
+        unique_together = (('group', 'user'), )
 
     def add_roles(self, roles):
         for role in roles:

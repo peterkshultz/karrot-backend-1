@@ -28,18 +28,12 @@ MockRequest = namedtuple('Request', ['user'])
 
 
 class AbsoluteURIBuildingRequest:
-
     def build_absolute_uri(self, path):
         return settings.HOSTNAME + path
 
 
 def send_in_channel(channel, topic, payload):
-    Channel(channel).send({
-        'text': json.dumps({
-            'topic': topic,
-            'payload': payload
-        })
-    })
+    Channel(channel).send({'text': json.dumps({'topic': topic, 'payload': payload})})
 
 
 @receiver(post_save, sender=ConversationMessage)
@@ -60,10 +54,11 @@ def send_messages(sender, instance, **kwargs):
 
         send_in_channel(subscription.reply_channel, topic, payload)
 
-    tokens = [item.token for item in
-              PushSubscription.objects.filter(
-                  Q(user__in=conversation.participants.all()) & ~Q(user__in=push_exclude_users) & ~Q(
-                      user=message.author))]
+    tokens = [
+        item.token for item in PushSubscription.objects.filter(
+            Q(user__in=conversation.participants.all()) & ~Q(user__in=push_exclude_users) & ~Q(user=message.author)
+        )
+    ]
 
     if len(tokens) > 0:
 
@@ -77,7 +72,7 @@ def send_messages(sender, instance, **kwargs):
             message_body=message.content,
             # this causes each notification for a given conversation to replace previous notifications
             # fancier would be to make the new notifications show a summary not just the latest message
-            tag='conversation:{}'.format(conversation.id)
+            tag='conversation:{}'.format(conversation.id),
         )
 
     # Send conversations object to participants after sending a message
@@ -113,13 +108,7 @@ def remove_participant(sender, instance, **kwargs):
     user = instance.user
     conversation = instance.conversation
     for subscription in ChannelSubscription.objects.filter(user=user):
-        send_in_channel(
-            subscription.reply_channel,
-            topic='conversations:leave',
-            payload={
-                'id': conversation.id
-            }
-        )
+        send_in_channel(subscription.reply_channel, topic='conversations:leave', payload={'id': conversation.id})
 
 
 # Group
@@ -248,4 +237,3 @@ def send_history_updates(sender, instance, **kwargs):
     payload = HistorySerializer(history).data
     for subscription in ChannelSubscription.objects.recent().filter(user__in=history.group.members.all()):
         send_in_channel(subscription.reply_channel, topic='history:history', payload=payload)
-

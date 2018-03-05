@@ -29,7 +29,10 @@ class Command(BaseCommand):
             "name": settings.SITE_NAME[:23],  # obey sparkpost name length limit
             "target": settings.HOSTNAME + "/api/webhooks/email_event/",
             "auth_type": "basic",
-            "auth_credentials": {"username": "xxx", "password": settings.SPARKPOST_WEBHOOK_SECRET},
+            "auth_credentials": {
+                "username": "xxx",
+                "password": settings.SPARKPOST_WEBHOOK_SECRET
+            },
             "events": settings.SPARKPOST_EMAIL_EVENTS,
         }
         existing_event_webhook = None
@@ -38,19 +41,17 @@ class Command(BaseCommand):
                 existing_event_webhook = w
 
         if existing_event_webhook is None:
-            print('WARNING: creating a new event webhook for {}. '
-                  'Please check on sparkpost.com if there are unused ones.'.format(event_webhook_data['target']))
-            response = s.post(
-                'https://api.sparkpost.com/api/v1/webhooks',
-                json=event_webhook_data
+            print(
+                'WARNING: creating a new event webhook for {}. '
+                'Please check on sparkpost.com if there are unused ones.'.format(event_webhook_data['target'])
             )
+            response = s.post('https://api.sparkpost.com/api/v1/webhooks', json=event_webhook_data)
             self.log_response(response)
             if not status.is_success(response.status_code):
                 self.errors.append('Failed to create new event webhook')
         else:
             response = s.put(
-                'https://api.sparkpost.com/api/v1/webhooks/' + existing_event_webhook['id'],
-                json=event_webhook_data
+                'https://api.sparkpost.com/api/v1/webhooks/' + existing_event_webhook['id'], json=event_webhook_data
             )
             self.log_response(response)
             if not status.is_success(response.status_code):
@@ -58,9 +59,9 @@ class Command(BaseCommand):
 
     def setup_relay_webhook(self, s):
         # create inbound domain with best effort, ignore failures
-        response = s.post('https://api.sparkpost.com/api/v1/inbound_domains', json={
-            'domain': settings.SPARKPOST_RELAY_DOMAIN
-        })
+        response = s.post(
+            'https://api.sparkpost.com/api/v1/inbound_domains', json={'domain': settings.SPARKPOST_RELAY_DOMAIN}
+        )
         self.log_response(response)
 
         response = s.get('https://api.sparkpost.com/api/v1/relay-webhooks')
@@ -78,22 +79,22 @@ class Command(BaseCommand):
             "name": settings.SPARKPOST_RELAY_DOMAIN + ' relay',
             "target": settings.HOSTNAME + "/api/webhooks/incoming_email/",
             "auth_token": settings.SPARKPOST_RELAY_SECRET,
-            "match": {"domain": settings.SPARKPOST_RELAY_DOMAIN}
+            "match": {
+                "domain": settings.SPARKPOST_RELAY_DOMAIN
+            }
         }
         if existing_relay is None:
-            print('WARNING: creating a new relay webhook for {}. '
-                  'Please check on sparkpost.com if there are unused ones.'.format(settings.SPARKPOST_RELAY_DOMAIN))
-            response = s.post(
-                'https://api.sparkpost.com/api/v1/relay-webhooks',
-                json=relay_webhook_data
+            print(
+                'WARNING: creating a new relay webhook for {}. '
+                'Please check on sparkpost.com if there are unused ones.'.format(settings.SPARKPOST_RELAY_DOMAIN)
             )
+            response = s.post('https://api.sparkpost.com/api/v1/relay-webhooks', json=relay_webhook_data)
             self.log_response(response)
             if not status.is_success(response.status_code):
                 self.errors.append('Failed to create new relay webhook')
         else:
             response = s.put(
-                'https://api.sparkpost.com/api/v1/relay-webhooks/' + existing_relay['id'],
-                json=relay_webhook_data
+                'https://api.sparkpost.com/api/v1/relay-webhooks/' + existing_relay['id'], json=relay_webhook_data
             )
             self.log_response(response)
             if not status.is_success(response.status_code):

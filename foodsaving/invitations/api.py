@@ -20,18 +20,13 @@ class NotInGroup(BasePermission):
         return not obj.group.is_member(request.user)
 
 
-class InvitationsViewSet(
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.ListModelMixin,
-    GenericViewSet
-):
+class InvitationsViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
     """
     Invitations
     """
     queryset = Invitation.objects
     serializer_class = InvitationSerializer
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, )
     filter_fields = ('group', )
     permission_classes = (IsAuthenticated, )
     throttle_classes = ()
@@ -49,7 +44,10 @@ class InvitationsViewSet(
 class InvitationAcceptViewSet(GenericViewSet):
     queryset = Invitation.objects
     serializer_class = InvitationAcceptSerializer
-    permission_classes = (IsAuthenticated, NotInGroup, )
+    permission_classes = (
+        IsAuthenticated,
+        NotInGroup,
+    )
     lookup_field = 'token'
 
     def get_queryset(self):
@@ -68,5 +66,3 @@ class InvitationAcceptViewSet(GenericViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-
-

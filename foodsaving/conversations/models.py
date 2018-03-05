@@ -16,8 +16,9 @@ from foodsaving.base.base_models import BaseModel, UpdatedAtMixin
 class ConversationManager(models.Manager):
     @classmethod
     def get_for_target(self, target):
-        return Conversation.objects.filter(target_id=target.id,
-                                           target_type=ContentType.objects.get_for_model(target)).first()
+        return Conversation.objects.filter(
+            target_id=target.id, target_type=ContentType.objects.get_for_model(target)
+        ).first()
 
     @classmethod
     def get_or_create_for_target(self, target):
@@ -73,12 +74,15 @@ class ConversationMessage(BaseModel):
     received_via = CharField(max_length=40, blank=True)
 
     def content_rendered(self, truncate_words=None):
-        html = markdown.markdown(self.content, extensions=[
-            pymdownx.emoji.EmojiExtension(emoji_index=pymdownx.emoji.twemoji),
-            'pymdownx.superfences',
-            'pymdownx.magiclink',
-            'markdown.extensions.nl2br',
-        ])
+        html = markdown.markdown(
+            self.content,
+            extensions=[
+                pymdownx.emoji.EmojiExtension(emoji_index=pymdownx.emoji.twemoji),
+                'pymdownx.superfences',
+                'pymdownx.magiclink',
+                'markdown.extensions.nl2br',
+            ]
+        )
         markdown_attrs['img'].append('class')
         markdown_tags.append('pre')
         clean_html = bleach.clean(html, markdown_tags, markdown_attrs)

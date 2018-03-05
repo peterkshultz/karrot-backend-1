@@ -49,49 +49,55 @@ class ConversationReceiverTests(ChannelTestCase):
         # hopefully they receive it!
         response = client.receive(json=True)
         response['payload']['created_at'] = parse(response['payload']['created_at'])
-        self.assertEqual(response, {
-            'topic': 'conversations:message',
-            'payload': {
-                'id': message.id,
-                'content': message.content,
-                'author': message.author.id,
-                'conversation': conversation.id,
-                'created_at': message.created_at,
-                'received_via': ''
+        self.assertEqual(
+            response, {
+                'topic': 'conversations:message',
+                'payload': {
+                    'id': message.id,
+                    'content': message.content,
+                    'author': message.author.id,
+                    'conversation': conversation.id,
+                    'created_at': message.created_at,
+                    'received_via': ''
+                }
             }
-        })
+        )
 
         # and they should get an updated conversation object
         response = client.receive(json=True)
         response['payload']['created_at'] = parse(response['payload']['created_at'])
         response['payload']['updated_at'] = parse(response['payload']['updated_at'])
         del response['payload']['participants']
-        self.assertEqual(response, {
-            'topic': 'conversations:conversation',
-            'payload': {
-                'id': conversation.id,
-                'created_at': conversation.created_at,
-                'updated_at': conversation.updated_at,
-                'seen_up_to': None,
-                'unread_message_count': 1,
-                'email_notifications': True,
+        self.assertEqual(
+            response, {
+                'topic': 'conversations:conversation',
+                'payload': {
+                    'id': conversation.id,
+                    'created_at': conversation.created_at,
+                    'updated_at': conversation.updated_at,
+                    'seen_up_to': None,
+                    'unread_message_count': 1,
+                    'email_notifications': True,
+                }
             }
-        })
+        )
 
         # author should get message & updated conversations object too
         response = author_client.receive(json=True)
         response['payload']['created_at'] = parse(response['payload']['created_at'])
-        self.assertEqual(response, {
-            'topic': 'conversations:message',
-            'payload': {
-                'id': message.id,
-                'content': message.content,
-                'author': message.author.id,
-                'conversation': conversation.id,
-                'created_at': message.created_at,
-                'received_via': ''
+        self.assertEqual(
+            response, {
+                'topic': 'conversations:message',
+                'payload': {
+                    'id': message.id,
+                    'content': message.content,
+                    'author': message.author.id,
+                    'conversation': conversation.id,
+                    'created_at': message.created_at,
+                    'received_via': ''
+                }
             }
-        })
+        )
 
         # Author receives more recent `update_at` time,
         # because their `seen_up_to` status is set after sending the message.
@@ -100,17 +106,19 @@ class ConversationReceiverTests(ChannelTestCase):
         response['payload']['created_at'] = parse(response['payload']['created_at'])
         response['payload']['updated_at'] = parse(response['payload']['updated_at'])
         del response['payload']['participants']
-        self.assertEqual(response, {
-            'topic': 'conversations:conversation',
-            'payload': {
-                'id': conversation.id,
-                'created_at': conversation.created_at,
-                'updated_at': author_participant.updated_at,
-                'seen_up_to': message.id,
-                'unread_message_count': 0,
-                'email_notifications': True,
+        self.assertEqual(
+            response, {
+                'topic': 'conversations:conversation',
+                'payload': {
+                    'id': conversation.id,
+                    'created_at': conversation.created_at,
+                    'updated_at': author_participant.updated_at,
+                    'seen_up_to': message.id,
+                    'unread_message_count': 0,
+                    'email_notifications': True,
+                }
             }
-        })
+        )
 
     def tests_receive_message_on_leave(self):
         client = WSClient()
@@ -126,12 +134,14 @@ class ConversationReceiverTests(ChannelTestCase):
 
         conversation.leave(user)
 
-        self.assertEqual(client.receive(json=True), {
-            'topic': 'conversations:leave',
-            'payload': {
-                'id': conversation.id
+        self.assertEqual(
+            client.receive(json=True), {
+                'topic': 'conversations:leave',
+                'payload': {
+                    'id': conversation.id
+                }
             }
-        })
+        )
 
 
 class GroupReceiverTests(ChannelTestCase):
@@ -187,11 +197,7 @@ class InvitationReceiverTests(ChannelTestCase):
         self.client.force_login(self.member)
         self.client.send_and_consume('websocket.connect', path='/')
 
-        invitation = Invitation.objects.create(
-            email='bla@bla.com',
-            group=self.group,
-            invited_by=self.member
-        )
+        invitation = Invitation.objects.create(email='bla@bla.com', group=self.group, invited_by=self.member)
 
         response = self.client.receive(json=True)
         self.assertEqual(response['topic'], 'invitations:invitation')
@@ -200,11 +206,7 @@ class InvitationReceiverTests(ChannelTestCase):
         self.assertIsNone(self.client.receive(json=True))
 
     def test_receive_invitation_accept(self):
-        invitation = Invitation.objects.create(
-            email='bla@bla.com',
-            group=self.group,
-            invited_by=self.member
-        )
+        invitation = Invitation.objects.create(email='bla@bla.com', group=self.group, invited_by=self.member)
         user = UserFactory()
 
         self.client.force_login(self.member)
@@ -385,8 +387,9 @@ class UserReceiverTest(ChannelTestCase):
         self.unrelated_user = UserFactory()
         self.group = GroupFactory(members=[self.member, self.other_member])
         pathlib.Path(settings.MEDIA_ROOT).mkdir(exist_ok=True)
-        copyfile(os.path.join(os.path.dirname(__file__), './photo.jpg'),
-                 os.path.join(settings.MEDIA_ROOT, 'photo.jpg'))
+        copyfile(
+            os.path.join(os.path.dirname(__file__), './photo.jpg'), os.path.join(settings.MEDIA_ROOT, 'photo.jpg')
+        )
         self.member.photo = 'photo.jpg'
         self.member.save()
         self.other_member.photo = 'photo.jpg'

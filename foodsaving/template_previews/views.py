@@ -34,7 +34,6 @@ def random_message():
 
 
 class Handlers:
-
     def accountdelete_request(self):
         return email_utils.prepare_accountdelete_request_email(user=random_user())
 
@@ -55,8 +54,9 @@ class Handlers:
         if invitation is None:
             invited_by = random_user()
             group = Group.objects.first()
-            invitation = Invitation.objects.create(group=group, invited_by=invited_by,
-                                                   email='exampleinvitation@foo.com')
+            invitation = Invitation.objects.create(
+                group=group, invited_by=invited_by, email='exampleinvitation@foo.com'
+            )
         return email_utils.prepare_emailinvitation_email(invitation)
 
     def group_summary(self):
@@ -68,13 +68,13 @@ class Handlers:
         summary_emails = foodsaving.groups.emails.prepare_group_summary_emails(group, from_date, to_date)
         if len(summary_emails) is 0:
             raise Exception(
-                'No emails were generated, you need at least one verified user in your db, and some activity data...')
+                'No emails were generated, you need at least one verified user in your db, and some activity data...'
+            )
         return summary_emails[0]
 
     def mailverification(self):
         return email_utils.prepare_mailverification_email(
-            user=random_user(),
-            verification_code=VerificationCode.objects.first()
+            user=random_user(), verification_code=VerificationCode.objects.first()
         )
 
     def newpassword(self):
@@ -88,8 +88,7 @@ class Handlers:
 
     def send_new_verification_code(self):
         return prepare_send_new_verification_code_email(
-            user=random_user(),
-            verification_code=VerificationCode.objects.first()
+            user=random_user(), verification_code=VerificationCode.objects.first()
         )
 
 
@@ -134,9 +133,11 @@ def list_templates(request):
                                 'formats': formats,
                             }
 
-    return HttpResponse(render_to_string('template_preview_list.jinja2', {
-        'templates': sorted(templates.values(), key=lambda t: t['name'])
-    }))
+    return HttpResponse(
+        render_to_string(
+            'template_preview_list.jinja2', {'templates': sorted(templates.values(), key=lambda t: t['name'])}
+        )
+    )
 
 
 def show_template(request):
@@ -150,7 +151,8 @@ def show_template(request):
 
     if not has_handler:
         return HttpResponseNotFound(
-            'Please setup a handler for the <strong>{}</strong> in <strong>{}</strong>'.format(name, __file__))
+            'Please setup a handler for the <strong>{}</strong> in <strong>{}</strong>'.format(name, __file__)
+        )
 
     email = getattr(handlers, name)()
 

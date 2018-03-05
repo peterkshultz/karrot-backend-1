@@ -23,11 +23,7 @@ class UserManager(BaseUserManager):
         email = self._validate_email(email)
         extra_fields['unverified_email'] = email
 
-        user = self.model(
-            email=email,
-            is_active=is_active,
-            display_name=display_name,
-            **extra_fields)
+        user = self.model(email=email, is_active=is_active, display_name=display_name, **extra_fields)
         user.set_password(password)
         user.save()
         user._send_welcome_mail()
@@ -54,8 +50,7 @@ class UserManager(BaseUserManager):
             raise ValueError('The email field must be set')
         return self.normalize_email(email)
 
-    def create_user(self, email=None, password=None, display_name=None,
-                    **extra_fields):
+    def create_user(self, email=None, password=None, display_name=None, **extra_fields):
         return self._create_user(email, password, display_name, **extra_fields)
 
     def create_superuser(self, email, password, **extra_fields):
@@ -140,12 +135,17 @@ class User(AbstractBaseUser, BaseModel, LocationModel):
     @transaction.atomic
     def send_new_verification_code(self):
         self._unverify_mail()
-        prepare_email('send_new_verification_code', self, {
-            'url': '{hostname}/#/verify-mail?key={code}'.format(
-                hostname=settings.HOSTNAME,
-                code=VerificationCode.objects.get(user=self, type=VerificationCode.EMAIL_VERIFICATION).code
-            )
-        }, to=self.unverified_email).send()
+        prepare_email(
+            'send_new_verification_code',
+            self, {
+                'url':
+                '{hostname}/#/verify-mail?key={code}'.format(
+                    hostname=settings.HOSTNAME,
+                    code=VerificationCode.objects.get(user=self, type=VerificationCode.EMAIL_VERIFICATION).code
+                )
+            },
+            to=self.unverified_email
+        ).send()
 
     @transaction.atomic
     def reset_password(self):

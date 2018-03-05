@@ -10,5 +10,7 @@ def message_written(message):
     write_points([{
         'measurement': 'karrot.conversation.message',
         'tags': tags,
-        'fields': {'value': 1},
+        'fields': {
+            'value': 1
+        },
     }])
